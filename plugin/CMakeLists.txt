@@ -9,6 +9,7 @@ pkg_check_modules(Cava IMPORTED_TARGET libcava QUIET)
 if(NOT Cava_FOUND)
     pkg_check_modules(Cava IMPORTED_TARGET cava REQUIRED)
 endif()
+pkg_check_modules(XCB IMPORTED_TARGET xcb xcb-composite xcb-damage xcb-image xcb-xfixes xcb-util xcb-render xcb-xtest xcb-shape REQUIRED)
 include(cmake/sensorslib.cmake)
 
 set(QT_QML_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml")

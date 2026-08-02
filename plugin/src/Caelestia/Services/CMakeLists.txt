@@ -32,6 +32,8 @@ qml_module(caelestia-services
         sessionmanager.hpp
         discordipc.cpp
         discordipc.hpp
+        xembedservice.cpp
+        xembedservice.hpp
         QuickShare/QuickShareDiscovery.cpp
         QuickShare/QuickShareDiscovery.hpp
         QuickShare/QuickShareCrypto.cpp
@@ -49,6 +51,7 @@ qml_module(caelestia-services
         PkgConfig::Pipewire
         PkgConfig::Aubio
         PkgConfig::Cava
+        PkgConfig::XCB
         Sensors::Sensors
         protobuf::libprotobuf
         OpenSSL::Crypto

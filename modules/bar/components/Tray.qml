@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Services.SystemTray
 import Caelestia.Config
+import Caelestia.Services
 import qs.components
 import qs.services
 
@@ -12,7 +13,9 @@ StyledRect {
 
     readonly property alias layout: layout
     readonly property alias items: items
+    readonly property alias xembedItems: xembedItems
     readonly property alias expandIcon: expandIcon
+    readonly property int totalCount: items.count + xembedItems.count
 
     readonly property int padding: Config.bar.tray.background ? Tokens.padding.medium : Tokens.padding.extraSmall
     readonly property int spacing: Config.bar.tray.background ? Tokens.spacing.medium : Tokens.spacing.extraSmall
@@ -46,7 +49,7 @@ StyledRect {
     implicitWidth: isHorizontal ? nonAnimWidth : Tokens.sizes.bar.innerWidth
     implicitHeight: isHorizontal ? Tokens.sizes.bar.innerWidth : nonAnimHeight
 
-    color: Qt.alpha(Colours.tPalette.m3surfaceContainer, (Config.bar.tray.background && items.count > 0) ? Colours.tPalette.m3surfaceContainer.a : 0)
+    color: Qt.alpha(Colours.tPalette.m3surfaceContainer, (Config.bar.tray.background && totalCount > 0) ? Colours.tPalette.m3surfaceContainer.a : 0)
     radius: Tokens.rounding.full
 
     Grid {
@@ -97,6 +100,14 @@ StyledRect {
             TrayItem {}
         }
 
+        Repeater {
+            id: xembedItems
+
+            model: XEmbedService.items
+
+            XEmbedTrayItem {}
+        }
+
         Behavior on opacity {
             Anim {
                 type: Anim.DefaultEffects
@@ -114,7 +125,7 @@ StyledRect {
         anchors.bottom: isHorizontal ? undefined : parent.bottom
         anchors.right: isHorizontal ? parent.right : undefined
 
-        active: Config.bar.tray.compact && items.count > 0
+        active: Config.bar.tray.compact && totalCount > 0
 
         sourceComponent: Item {
             implicitWidth: isHorizontal ? (expandIconInner.implicitWidth - Tokens.padding.small * 2) : expandIconInner.implicitWidth

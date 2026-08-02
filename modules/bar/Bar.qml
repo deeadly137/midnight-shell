@@ -67,11 +67,21 @@ GridLayout {
             const tray = ch.item as Tray;
             const mouseMap = mapToItem(tray.expandIcon, isHorizontal ? pos : tray.implicitWidth / 2, isHorizontal ? tray.implicitHeight / 2 : pos);
             if (!Config.bar.tray.compact || (tray.expanded && !tray.expandIcon.contains(mouseMap))) {
-                const traySize = isHorizontal ? tray.layout.implicitWidth : tray.layout.implicitHeight;
-                const index = Math.floor(((pos - top - tray.padding * 2 + tray.spacing) / traySize) * tray.items.count);
-                const trayItem = tray.items.itemAt(index);
-                if (trayItem) {
-                    popouts.currentName = `traymenu${index}`;
+                let foundIndex = -1;
+                for (let i = 0; i < tray.items.count; ++i) {
+                    const it = tray.items.itemAt(i);
+                    if (it) {
+                        const local = it.mapFromItem(this, isHorizontal ? pos : width / 2, isHorizontal ? height / 2 : pos);
+                        if (it.contains(local)) {
+                            foundIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                if (foundIndex >= 0) {
+                    const trayItem = tray.items.itemAt(foundIndex);
+                    popouts.currentName = `traymenu${foundIndex}`;
                     popouts.currentCenter = isHorizontal ? trayItem.mapToItem(null, trayItem.implicitWidth / 2, 0).x : trayItem.mapToItem(null, 0, trayItem.implicitHeight / 2).y;
                     popouts.hasCurrent = true;
                 } else {

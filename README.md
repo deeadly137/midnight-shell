@@ -14,7 +14,9 @@
 > [!NOTE]
 > This is a fork of the official [caelestia-shell](https://github.com/caelestia-dots/shell) with additional features. All new features are listed below.
 
-https://github.com/user-attachments/assets/0840f496-575c-4ca6-83a8-87bb01a85c5f
+
+https://github.com/user-attachments/assets/774a8872-4d95-45b9-a4b6-409d8394dadc
+
 
 ## Fork Features
 

@@ -737,6 +737,7 @@ For example, to automatically hide the bar on the monitor named `DP-1`:
             "autoHide": true,
             "blur": false,
             "enabled": false,
+            "renderer": "gpu",
             "rounding": 1,
             "spacing": 1
         },

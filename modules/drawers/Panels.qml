@@ -122,8 +122,13 @@ Item {
             }
             AnchorChanges {
                 target: toasts
-                anchors.bottom: undefined
-                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: undefined
+            }
+            PropertyChanges {
+                target: toasts
+                anchors.leftMargin: Tokens.padding.medium + (sidebar.visible ? sidebar.width * (1 - sidebar.offsetScale) : 0)
+                anchors.rightMargin: 0
             }
             AnchorChanges {
                 target: sidebar

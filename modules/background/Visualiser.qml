@@ -71,6 +71,8 @@ Item {
                     anchors.topMargin: Config.bar.position === "top" ? root.barExclusiveZone : Config.border.thickness
                     anchors.bottomMargin: Config.bar.position === "bottom" ? root.barExclusiveZone : (GlobalConfig.appearance.islands ? 0 : Config.border.thickness)
 
+                    visible: Config.background.visualiser.renderer === "cpu"
+
                     values: Audio.cava.values
                     primaryColor: Qt.alpha(Colours.palette.m3primary, 0.7)
                     secondaryColor: Qt.alpha(Colours.palette.m3inversePrimary, 0.7)
@@ -92,9 +94,68 @@ Item {
                     }
                 }
 
+                Canvas {
+                    id: dataCanvas
+
+                    visible: false
+                    width: Math.max(1, bars.displayValues.length)
+                    height: 1
+
+                    renderTarget: Canvas.FramebufferObject
+                    renderStrategy: Canvas.Cooperative
+
+                    onPaint: {
+                        var ctx = getContext("2d");
+                        var vals = bars.displayValues;
+                        var n = vals.length;
+                        for (let i = 0; i < n; i++) {
+                            const b = vals[i];
+                            const q = b <= 0 ? 0 : b >= 1 ? 65025 : Math.round(b * 65025);
+                            ctx.fillStyle = Qt.rgba((q >> 8) / 255, (q & 255) / 255, 0, 1);
+                            ctx.fillRect(i, 0, 1, 1);
+                        }
+                        dataTexSource.scheduleUpdate();
+                    }
+
+                    Component.onCompleted: requestPaint()
+                }
+
+                ShaderEffectSource {
+                    id: dataTexSource
+
+                    sourceItem: dataCanvas
+                    hideSource: true
+                    smooth: false
+                    live: false
+                }
+
+                ShaderEffect {
+                    id: gpuVisualiser
+
+                    visible: Config.background.visualiser.renderer !== "cpu"
+                    anchors.fill: bars
+
+                    property variant dataTex: dataTexSource
+                    property real itemWidth: width
+                    property real itemHeight: height
+                    property int barCount: bars.displayValues.length
+                    property real rounding: bars.rounding
+                    property real spacing: bars.spacing
+                    property color primaryColor: bars.primaryColor
+                    property color secondaryColor: bars.secondaryColor
+                    property real dpr: root.screen.devicePixelRatio
+
+                    fragmentShader: "qrc:/shaders/visualiser.frag.qsb"
+                }
+
                 FrameAnimation {
                     running: root.opacity > 0 && !bars.settled
-                    onTriggered: bars.advance(frameTime)
+                    onTriggered: {
+                        bars.advance(frameTime);
+                        if (Config.background.visualiser.renderer !== "cpu") {
+                            dataCanvas.requestPaint();
+                        }
+                    }
                 }
             }
         }

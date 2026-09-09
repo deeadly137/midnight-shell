@@ -143,9 +143,9 @@ void SessionConfig::refreshButtons() {
 QVariantList SessionConfig::buttons() const {
     QVariantList result;
 
-    const auto* icons = icons();
-    const auto* commands = commands();
-    if (!icons || !commands)
+    const auto* iconsNode = icons();
+    const auto* commandsNode = commands();
+    if (!iconsNode || !commandsNode)
         return result;
 
     static const QStringList defaultKeys = {
@@ -159,13 +159,13 @@ QVariantList SessionConfig::buttons() const {
     QSet<QString> seen;
 
     // Custom keys first (in captured order), then the standard four.
-    for (const auto& key : icons->customIconKeys()) {
+    for (const auto& key : iconsNode->customIconKeys()) {
         if (!seen.contains(key)) {
             seen.insert(key);
             orderedKeys.append(key);
         }
     }
-    for (const auto& key : commands->customCommandKeys()) {
+    for (const auto& key : commandsNode->customCommandKeys()) {
         if (!seen.contains(key)) {
             seen.insert(key);
             orderedKeys.append(key);
@@ -183,20 +183,20 @@ QVariantList SessionConfig::buttons() const {
         btn.insert(u"key"_s, key);
 
         QString icon = key;
-        if (icons->customIcons().contains(key)) {
-            icon = icons->customIcons().value(key);
+        if (iconsNode->customIcons().contains(key)) {
+            icon = iconsNode->customIcons().value(key);
         } else {
-            const QVariant iconProp = icons->value(key);
+            const QVariant iconProp = iconsNode->value(key);
             if (iconProp.isValid() && iconProp.userType() == QMetaType::QString)
                 icon = iconProp.toString();
         }
         btn.insert(u"icon"_s, icon);
 
         QStringList command;
-        if (commands->customCommands().contains(key)) {
-            command = commands->customCommands().value(key);
+        if (commandsNode->customCommands().contains(key)) {
+            command = commandsNode->customCommands().value(key);
         } else {
-            const QVariant cmdProp = commands->value(key);
+            const QVariant cmdProp = commandsNode->value(key);
             if (cmdProp.isValid() && cmdProp.userType() == QMetaType::QStringList)
                 command = cmdProp.toStringList();
             else
@@ -213,21 +213,21 @@ QVariantList SessionConfig::buttons() const {
 QVariantList SessionConfig::customButtons() const {
     QVariantList result;
 
-    const auto* icons = icons();
-    const auto* commands = commands();
-    if (!icons || !commands)
+    const auto* iconsNode = icons();
+    const auto* commandsNode = commands();
+    if (!iconsNode || !commandsNode)
         return result;
 
     QStringList orderedKeys;
     QSet<QString> seen;
 
-    for (const auto& key : icons->customIconKeys()) {
+    for (const auto& key : iconsNode->customIconKeys()) {
         if (!knownSessionKeys().contains(key) && !seen.contains(key)) {
             seen.insert(key);
             orderedKeys.append(key);
         }
     }
-    for (const auto& key : commands->customCommandKeys()) {
+    for (const auto& key : commandsNode->customCommandKeys()) {
         if (!knownSessionKeys().contains(key) && !seen.contains(key)) {
             seen.insert(key);
             orderedKeys.append(key);
@@ -239,13 +239,13 @@ QVariantList SessionConfig::customButtons() const {
         btn.insert(u"key"_s, key);
 
         QString icon = key;
-        if (icons->customIcons().contains(key))
-            icon = icons->customIcons().value(key);
+        if (iconsNode->customIcons().contains(key))
+            icon = iconsNode->customIcons().value(key);
         btn.insert(u"icon"_s, icon);
 
         QStringList command;
-        if (commands->customCommands().contains(key)) {
-            command = commands->customCommands().value(key);
+        if (commandsNode->customCommands().contains(key)) {
+            command = commandsNode->customCommands().value(key);
         } else {
             command = QStringList { key };
         }

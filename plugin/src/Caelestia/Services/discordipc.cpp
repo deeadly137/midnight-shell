@@ -6,6 +6,8 @@
 #include <QCoreApplication>
 #include <QDateTime>
 
+using Qt::StringLiterals::operator""_s;
+
 namespace caelestia {
 
 enum class Opcode : int32_t {
@@ -64,7 +66,7 @@ void DiscordIpc::checkReconnect() {
     if (m_socket->state() == QLocalSocket::ConnectedState || m_socket->state() == QLocalSocket::ConnectingState) return;
 
     QString runtimeDir = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
-    QString pipePath = runtimeDir + "/discord-ipc-0";
+    QString pipePath = runtimeDir + u"/discord-ipc-0"_s;
 
     m_socket->connectToServer(pipePath);
 }
@@ -72,8 +74,8 @@ void DiscordIpc::checkReconnect() {
 void DiscordIpc::onSocketConnected() {
     // Send Handshake
     QJsonObject payload;
-    payload["v"] = 1;
-    payload["client_id"] = m_clientId;
+    payload[u"v"_s] = 1;
+    payload[u"client_id"_s] = m_clientId;
     sendFrame(static_cast<int>(Opcode::Handshake), payload);
 }
 
@@ -117,8 +119,8 @@ void DiscordIpc::onReadyRead() {
 
 void DiscordIpc::processPayload(int opcode, const QJsonObject& payload) {
     if (opcode == static_cast<int>(Opcode::Frame)) {
-        if (payload.contains("cmd") && payload["cmd"].toString() == "DISPATCH") {
-            if (payload.contains("evt") && payload["evt"].toString() == "READY") {
+        if (payload.contains(u"cmd"_s) && payload[u"cmd"_s].toString() == u"DISPATCH"_s) {
+            if (payload.contains(u"evt"_s) && payload[u"evt"_s].toString() == u"READY"_s) {
                 m_connected = true;
                 emit connectedChanged();
             }
@@ -148,13 +150,13 @@ void DiscordIpc::sendActivity(const QJsonObject& activity) {
     if (!m_connected) return;
 
     QJsonObject args;
-    args["pid"] = static_cast<int>(QCoreApplication::applicationPid());
-    args["activity"] = activity;
+    args[u"pid"_s] = static_cast<int>(QCoreApplication::applicationPid());
+    args[u"activity"_s] = activity;
 
     QJsonObject payload;
-    payload["cmd"] = "SET_ACTIVITY";
-    payload["args"] = args;
-    payload["nonce"] = QString::number(QDateTime::currentMSecsSinceEpoch());
+    payload[u"cmd"_s] = u"SET_ACTIVITY"_s;
+    payload[u"args"_s] = args;
+    payload[u"nonce"_s] = QString::number(QDateTime::currentMSecsSinceEpoch());
 
     sendFrame(static_cast<int>(Opcode::Frame), payload);
 }
@@ -163,12 +165,12 @@ void DiscordIpc::clearActivity() {
     if (!m_connected) return;
 
     QJsonObject args;
-    args["pid"] = static_cast<int>(QCoreApplication::applicationPid());
+    args[u"pid"_s] = static_cast<int>(QCoreApplication::applicationPid());
 
     QJsonObject payload;
-    payload["cmd"] = "SET_ACTIVITY";
-    payload["args"] = args;
-    payload["nonce"] = QString::number(QDateTime::currentMSecsSinceEpoch());
+    payload[u"cmd"_s] = u"SET_ACTIVITY"_s;
+    payload[u"args"_s] = args;
+    payload[u"nonce"_s] = QString::number(QDateTime::currentMSecsSinceEpoch());
 
     sendFrame(static_cast<int>(Opcode::Frame), payload);
 }

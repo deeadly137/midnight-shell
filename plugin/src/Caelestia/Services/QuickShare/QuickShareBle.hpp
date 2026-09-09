@@ -9,6 +9,8 @@
 #include <QDBusObjectPath>
 #include <QDateTime>
 
+using Qt::StringLiterals::operator""_s;
+
 class QuickShareBleAdvertisementAdaptor : public QDBusAbstractAdaptor {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.bluez.LEAdvertisement1")
@@ -18,8 +20,8 @@ class QuickShareBleAdvertisementAdaptor : public QDBusAbstractAdaptor {
 
 public:
     explicit QuickShareBleAdvertisementAdaptor(QObject *parent);
-    QString type() const { return "broadcast"; }
-    QStringList serviceUUIDs() const { return {"0000fe2c-0000-1000-8000-00805f9b34fb"}; }
+    QString type() const { return u"broadcast"_s; }
+    QStringList serviceUUIDs() const { return {u"0000fe2c-0000-1000-8000-00805f9b34fb"_s}; }
     QVariantMap serviceData() const;
 
 public slots:

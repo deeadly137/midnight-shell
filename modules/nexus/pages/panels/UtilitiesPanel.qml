@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick.Layouts
 import Caelestia.Config
+import Caelestia.I18n
 import qs.modules.nexus.common
 
 PageBase {
@@ -27,7 +28,7 @@ PageBase {
         });
     }
 
-    title: qsTr("Utilities")
+    title: Tr.tr("Utilities")
     isSubPage: true
 
     ColumnLayout {
@@ -39,7 +40,7 @@ PageBase {
         // General
         SectionHeader {
             first: true
-            text: qsTr("General")
+            text: Tr.tr("General")
         }
 
         ToggleRow {
@@ -58,7 +59,7 @@ PageBase {
 
         // Cards
         SectionHeader {
-            text: qsTr("Cards")
+            text: Tr.tr("Cards")
         }
 
         ToggleRow {
@@ -101,61 +102,62 @@ PageBase {
 
         // Quick toggles
         SectionHeader {
-            text: qsTr("Quick toggles")
+            text: Tr.tr("Quick toggles")
         }
 
         ToggleRow {
             first: true
-            text: qsTr("Wi-Fi")
-            subtext: qsTr("Toggle wireless networking")
+            text: Tr.tr("Wi-Fi")
+            subtext: Tr.tr("Toggle wireless networking")
             disabled: !Config.utilities.cards.quickToggles
             checked: root.isToggleOn("wifi")
             onToggled: root.setToggleOn("wifi", checked)
         }
 
         ToggleRow {
-            text: qsTr("Bluetooth")
-            subtext: qsTr("Toggle the Bluetooth adapter")
+            text: Tr.tr("Bluetooth")
+            subtext: Tr.tr("Toggle the Bluetooth adapter")
             disabled: !Config.utilities.cards.quickToggles
             checked: root.isToggleOn("bluetooth")
             onToggled: root.setToggleOn("bluetooth", checked)
         }
 
         ToggleRow {
-            text: qsTr("Microphone")
-            subtext: qsTr("Mute or unmute the default source")
+            text: Tr.tr("Microphone")
+            subtext: Tr.tr("Mute or unmute the default source")
             disabled: !Config.utilities.cards.quickToggles
             checked: root.isToggleOn("mic")
             onToggled: root.setToggleOn("mic", checked)
         }
 
         ToggleRow {
-            text: qsTr("Settings")
-            subtext: qsTr("Open the settings window")
+            text: Tr.tr("Settings")
+            subtext: Tr.tr("Open the settings window")
             disabled: !Config.utilities.cards.quickToggles
             checked: root.isToggleOn("settings")
             onToggled: root.setToggleOn("settings", checked)
         }
 
         ToggleRow {
-            text: qsTr("Game mode")
-            subtext: qsTr("Toggle game mode")
+            text: Tr.tr("Game mode")
+            subtext: Tr.tr("Toggle game mode")
             disabled: !Config.utilities.cards.quickToggles
             checked: root.isToggleOn("gameMode")
             onToggled: root.setToggleOn("gameMode", checked)
         }
 
         ToggleRow {
-            text: qsTr("Do not disturb")
-            subtext: qsTr("Silence notifications")
+            text: Tr.tr("Do not disturb")
+            subtext: Tr.tr("Silence notifications")
             disabled: !Config.utilities.cards.quickToggles
             checked: root.isToggleOn("dnd")
             onToggled: root.setToggleOn("dnd", checked)
         }
 
         ToggleRow {
-            text: qsTr("VPN")
-            subtext: qsTr("Connect or disconnect the VPN")
+            last: true
+            text: Tr.tr("VPN")
+            subtext: Tr.tr("Connect or disconnect the VPN")
             disabled: !Config.utilities.cards.quickToggles
             checked: root.isToggleOn("vpn")
             onToggled: root.setToggleOn("vpn", checked)

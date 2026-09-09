@@ -25,7 +25,20 @@ GridLayout {
 
     readonly property int ws: groupOffset + index + 1
     readonly property bool isOccupied: occupied[ws] ?? false
-    readonly property bool hasWindows: isOccupied && Config.bar.workspaces.showWindows
+    readonly property bool hasWindows: isOccupied && Config.bar.workspaces.showWindows && (Config.bar.workspaces.maxWindowIcons > 0)
+    readonly property bool focused: activeWsId === ws
+    readonly property list<int> focusedShapeList: [MaterialShape.Slanted, MaterialShape.Oval, MaterialShape.Pill, MaterialShape.Triangle, MaterialShape.Arrow, MaterialShape.Diamond, MaterialShape.Pentagon, MaterialShape.Gem, MaterialShape.VerySunny, MaterialShape.Sunny, MaterialShape.Cookie4Sided, MaterialShape.Cookie6Sided, MaterialShape.Cookie7Sided, MaterialShape.Cookie9Sided, MaterialShape.Cookie12Sided, MaterialShape.Clover4Leaf, MaterialShape.SoftBurst, MaterialShape.Ghostish]
+
+    function updateShape(): void {
+        const shape = indicator.item as MaterialShape;
+        if (!shape)
+            return;
+
+        if (focused)
+            shape.shape = focusedShapeList[Math.floor(Math.random() * focusedShapeList.length)];
+        else
+            shape.shape = Qt.binding(() => isOccupied ? MaterialShape.Square : MaterialShape.Circle);
+    }
 
     columns: isHorizontal ? -1 : 1
     rows: isHorizontal ? 1 : -1
@@ -58,9 +71,9 @@ GridLayout {
                 const ws = Hypr.workspaces.values.find(w => w.id === root.ws);
                 const wsName = !ws || ws.name == root.ws ? root.ws : ws.name[0];
                 let displayName = wsName.toString();
-                if (Config.bar.workspaces.capitalisation.toLowerCase() === "upper") {
+                if (Config.bar.workspaces.capitalisation === BarWorkspaceCapitalisation.Upper) {
                     displayName = displayName.toUpperCase();
-                } else if (Config.bar.workspaces.capitalisation.toLowerCase() === "lower") {
+                } else if (Config.bar.workspaces.capitalisation === BarWorkspaceCapitalisation.Lower) {
                     displayName = displayName.toLowerCase();
                 }
                 const label = Config.bar.workspaces.label || displayName;
@@ -305,8 +318,7 @@ GridLayout {
             Repeater {
                 model: ScriptModel {
                     values: {
-                        const ws = root.ws;
-                        const windows = Hypr.toplevels.values.filter(c => c.workspace?.id === ws);
+                        const windows = Hypr.toplevelsForWs(root.ws);
                         const maxIcons = root.Config.bar.workspaces.maxWindowIcons;
                         return maxIcons > 0 ? windows.slice(0, maxIcons) : windows;
                     }

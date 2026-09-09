@@ -3,12 +3,13 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Caelestia.Config
+import Caelestia.I18n
 import qs.modules.nexus.common
 
 PageBase {
     id: root
 
-    title: qsTr("Launcher")
+    title: Tr.tr("Launcher")
     isSubPage: true
 
     ColumnLayout {
@@ -20,7 +21,7 @@ PageBase {
         // General
         SectionHeader {
             first: true
-            text: qsTr("General")
+            text: Tr.tr("General")
         }
 
         ToggleRow {
@@ -73,7 +74,7 @@ PageBase {
 
         // Display
         SectionHeader {
-            text: qsTr("Display")
+            text: Tr.tr("Display")
         }
 
         StepperRow {
@@ -123,7 +124,7 @@ PageBase {
 
         // Behaviour
         SectionHeader {
-            text: qsTr("Behaviour")
+            text: Tr.tr("Behaviour")
         }
 
         ToggleRow {
@@ -154,7 +155,7 @@ PageBase {
 
         // Fuzzy search
         SectionHeader {
-            text: qsTr("Fuzzy search")
+            text: Tr.tr("Fuzzy search")
         }
 
         ToggleRow {

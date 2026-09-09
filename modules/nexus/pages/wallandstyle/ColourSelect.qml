@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Caelestia.Config
+import Caelestia.I18n
 import qs.components
 import qs.components.controls
 import qs.services
@@ -11,7 +12,7 @@ import qs.modules.launcher.services
 PageBase {
     id: root
 
-    title: qsTr("Colours")
+    title: Tr.tr("Colours")
     isSubPage: true
 
     readonly property list<var> variantData: [

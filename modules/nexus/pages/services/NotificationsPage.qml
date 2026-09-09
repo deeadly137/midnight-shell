@@ -1,43 +1,43 @@
 import QtQuick
 import QtQuick.Layouts
 import Caelestia.Config
+import Caelestia.I18n
 import qs.components.controls
 import qs.modules.nexus.common
 
 PageBase {
     id: root
 
-    // Notification fullscreen visibility, mapped to GlobalConfig.notifs.fullscreen
+    // Notification fullscreen visibility, ordered to match config::NotifsFullscreen (On, Off)
     readonly property list<MenuItem> notifFullscreenItems: [
         MenuItem {
-            text: qsTr("Off")
-            icon: "notifications_off"
+            text: Tr.trCtx("On", "show notifications over fullscreen apps")
+            icon: "notifications"
         },
         MenuItem {
-            text: qsTr("On")
-            icon: "notifications"
+            text: Tr.trCtx("Off", "show notifications over fullscreen apps")
+            icon: "notifications_off"
         }
     ]
-    readonly property list<string> notifFullscreenValues: ["off", "on"]
 
     // Toast fullscreen visibility, mapped to GlobalConfig.utilities.toasts.fullscreen
     readonly property list<MenuItem> toastFullscreenItems: [
         MenuItem {
-            text: qsTr("Off")
+            text: Tr.trCtx("Off", "show toasts over fullscreen apps")
             icon: "notifications_off"
         },
         MenuItem {
-            text: qsTr("Important")
+            text: Tr.trCtx("Important", "show toasts over fullscreen apps: important ones only")
             icon: "priority_high"
         },
         MenuItem {
-            text: qsTr("On")
+            text: Tr.trCtx("On", "show toasts over fullscreen apps")
             icon: "notifications"
         }
     ]
     readonly property list<string> toastFullscreenValues: ["off", "important", "all"]
 
-    title: qsTr("Notifications")
+    title: Tr.tr("Notifications")
     isSubPage: true
 
     ColumnLayout {
@@ -49,7 +49,7 @@ PageBase {
         // Notifications
         SectionHeader {
             first: true
-            text: qsTr("Notifications")
+            text: Tr.tr("Notifications")
         }
 
         SelectRow {
@@ -123,7 +123,7 @@ PageBase {
 
         // Toasts
         SectionHeader {
-            text: qsTr("Toasts")
+            text: Tr.tr("Toasts")
         }
 
         SelectRow {
@@ -183,7 +183,7 @@ PageBase {
 
         // Toast events
         SectionHeader {
-            text: qsTr("Toast events")
+            text: Tr.tr("Toast events")
         }
 
         ToggleRow {

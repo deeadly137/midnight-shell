@@ -22,7 +22,7 @@ PageBase {
             notifications: qsTr("Notifications")
         })
 
-    title: qsTr("Status icons")
+    title: Tr.tr("Status icons")
     isSubPage: true
 
     ColumnLayout {
@@ -88,9 +88,9 @@ PageBase {
 
             rootParent: root.flickable
             icon: "add"
-            label: qsTr("Add entry")
-            header: qsTr("Add new entry")
-            acceptLabel: qsTr("Add")
+            label: Tr.tr("Add entry")
+            header: Tr.tr("Add new entry")
+            acceptLabel: Tr.trCtx("Add", "button")
 
             model: {
                 const builtins = Object.keys(root.builtinIcons).map(k => ({
@@ -114,7 +114,7 @@ PageBase {
 
         // Behaviour
         SectionHeader {
-            text: qsTr("Behaviour")
+            text: Tr.tr("Behaviour")
         }
 
         ToggleRow {

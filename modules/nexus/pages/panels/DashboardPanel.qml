@@ -11,7 +11,7 @@ import qs.modules.nexus.common
 PageBase {
     id: root
 
-    title: qsTr("Dashboard")
+    title: Tr.tr("Dashboard")
     isSubPage: true
 
     readonly property list<MenuItem> dashboardShapeItems: [
@@ -125,7 +125,7 @@ PageBase {
         // General
         SectionHeader {
             first: true
-            text: qsTr("General")
+            text: Tr.tr("General")
         }
 
         ToggleRow {
@@ -200,7 +200,7 @@ PageBase {
 
         // Tabs
         SectionHeader {
-            text: qsTr("Tabs")
+            text: Tr.tr("Tabs")
         }
 
         ToggleRow {
@@ -376,7 +376,7 @@ PageBase {
 
         // Performance widgets
         SectionHeader {
-            text: qsTr("Performance widgets")
+            text: Tr.tr("Performance widgets")
         }
 
         ToggleRow {
@@ -449,7 +449,7 @@ PageBase {
 
         // Behaviour
         SectionHeader {
-            text: qsTr("Behaviour")
+            text: Tr.tr("Behaviour")
         }
 
         StepperRow {

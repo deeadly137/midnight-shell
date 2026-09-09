@@ -17,8 +17,7 @@ IconButton {
             return false;
         const targetObj = configNode[propertyName];
         const _dummy1 = (targetObj && targetObj.values !== undefined) ? targetObj.values : targetObj;
-        const _dummy2 = (targetObj && targetObj.loaded !== undefined) ? targetObj.loaded : false;
-        return configNode.isPropertyLoaded(propertyName);
+        return configNode.isOverride(propertyName);
     }
 
     visible: isOverridden

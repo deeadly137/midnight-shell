@@ -11,6 +11,7 @@ import qs.components.controls
 import qs.components.effects
 import qs.components.widgets
 import qs.services
+import qs.utils
 
 StyledRect {
     id: root

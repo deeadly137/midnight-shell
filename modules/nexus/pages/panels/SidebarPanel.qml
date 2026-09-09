@@ -11,7 +11,7 @@ import qs.modules.nexus.common
 PageBase {
     id: root
 
-    title: qsTr("Sidebar")
+    title: Tr.tr("Sidebar")
     isSubPage: true
 
     ColumnLayout {
@@ -22,7 +22,7 @@ PageBase {
 
         SectionHeader {
             first: true
-            text: qsTr("General")
+            text: Tr.tr("General")
         }
 
         ToggleRow {

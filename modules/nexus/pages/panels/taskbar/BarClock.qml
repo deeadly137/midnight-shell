@@ -2,12 +2,13 @@ pragma ComponentBehavior: Bound
 
 import QtQuick.Layouts
 import Caelestia.Config
+import Caelestia.I18n
 import qs.modules.nexus.common
 
 PageBase {
     id: root
 
-    title: qsTr("Clock")
+    title: Tr.tr("Clock")
     isSubPage: true
 
     ColumnLayout {

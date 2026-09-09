@@ -32,6 +32,9 @@ qml_module(caelestia-services
         sessionmanager.hpp
         discordipc.cpp
         discordipc.hpp
+        networkusage.cpp
+        hyprdevices.cpp
+        hyprextras.cpp
         QuickShare/QuickShareDiscovery.cpp
         QuickShare/QuickShareDiscovery.hpp
         QuickShare/QuickShareCrypto.cpp
@@ -44,8 +47,8 @@ qml_module(caelestia-services
         QuickShare/QuickShareBle.hpp
         ${PROTO_SRCS}
     LIBRARIES
-        Qt6::DBus
-        Qt6::Network
+        Qt::DBus
+        Qt::Network
         PkgConfig::Pipewire
         PkgConfig::Aubio
         PkgConfig::Cava
@@ -53,9 +56,12 @@ qml_module(caelestia-services
         protobuf::libprotobuf
         OpenSSL::Crypto
         OpenSSL::SSL
+        caelestia-util
         caelestia-core
         caelestia-config
-        caelestia-internal
+    DEPENDENCIES
+        Caelestia
+        Caelestia.Config
 )
 
 target_include_directories(caelestia-services PRIVATE QuickShare ${CMAKE_CURRENT_BINARY_DIR})

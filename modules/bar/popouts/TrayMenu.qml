@@ -6,6 +6,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Caelestia.Config
+import Caelestia.I18n
 import qs.components
 import qs.services
 
@@ -15,8 +16,8 @@ StackView {
     required property PopoutState popouts
     required property QsMenuHandle trayItem
 
-    implicitWidth: currentItem?.implicitWidth ?? 0
-    implicitHeight: currentItem?.implicitHeight ?? 0
+    implicitWidth: (currentItem as SubMenu)?.hasChildren ? currentItem.implicitWidth : -Tokens.padding.large * 2
+    implicitHeight: (currentItem as SubMenu)?.hasChildren ? currentItem.implicitHeight : -Tokens.padding.large * 2
 
     initialItem: SubMenu {
         handle: root.trayItem
@@ -43,6 +44,7 @@ StackView {
         id: menu
 
         required property QsMenuHandle handle
+        readonly property bool hasChildren: menuOpener.children.values.some(e => !e.isSeparator)
         property bool isSubMenu
         property bool shown
 
@@ -280,7 +282,7 @@ StackView {
 
                         StyledText {
                             anchors.verticalCenter: parent.verticalCenter
-                            text: qsTr("Back")
+                            text: Tr.trCtx("Back", "button")
                             color: Colours.palette.m3onSecondaryContainer
                         }
                     }

@@ -55,7 +55,6 @@ ShellRoot {
         }
     }
 
-    ConfigToasts {}
     Shortcuts {}
 
     Component.onCompleted: {

@@ -1,8 +1,8 @@
 #include "configattached.hpp"
-#include "config.hpp"
-#include "monitorconfigmanager.hpp"
 
 #include <qquickitem.h>
+
+#include "common.hpp"
 
 namespace caelestia::config {
 
@@ -30,7 +30,7 @@ void Config::inheritScreen(const QString& screen) {
     if (m_screen.isEmpty())
         m_config = nullptr;
     else
-        m_config = MonitorConfigManager::instance()->configForScreen(m_screen);
+        m_config = ConfigSingleton::instance()->forScreen(m_screen);
 
     propagateScreen();
     emit sourceChanged();
@@ -57,7 +57,12 @@ void Config::attachedParentChange(
     const Type* Config::name() const {                                                                                 \
         if (m_config)                                                                                                  \
             return m_config->name();                                                                                   \
-        return GlobalConfig::instance()->name();                                                                       \
+        /* Suppress warnings before component is complete if attached to a QQuickItem. */                              \
+        /* Raw QObjects are unable to inherit the screen (only QQuickItems can). */                                    \
+        if ((m_complete || !qobject_cast<QQuickItem*>(parent())) && parent())                                          \
+            qCWarning(lcConfig, "Config.%s accessed without a screen set on %s", #name,                                \
+                parent()->metaObject()->className());                                                                  \
+        return ConfigSingleton::instance()->name();                                                                    \
     }
 
 CONFIG_ATTACHED_GETTER(AppearanceConfig, appearance)
@@ -72,17 +77,18 @@ CONFIG_ATTACHED_GETTER(NexusConfig, nexus)
 CONFIG_ATTACHED_GETTER(NotifsConfig, notifs)
 CONFIG_ATTACHED_GETTER(OsdConfig, osd)
 CONFIG_ATTACHED_GETTER(ServiceConfig, services)
-CONFIG_ATTACHED_GETTER(ShimejiConfig, shimeji)
 CONFIG_ATTACHED_GETTER(SessionConfig, session)
 CONFIG_ATTACHED_GETTER(SidebarConfig, sidebar)
 CONFIG_ATTACHED_GETTER(UtilitiesConfig, utilities)
-CONFIG_ATTACHED_GETTER(WInfoConfig, winfo)
 CONFIG_ATTACHED_GETTER(UserPaths, paths)
+CONFIG_ATTACHED_GETTER(ShimejiConfig, shimeji)
+CONFIG_ATTACHED_GETTER(AudioConfig, audio)
+CONFIG_ATTACHED_GETTER(AiConfig, ai)
 
 #undef CONFIG_ATTACHED_GETTER
 
-GlobalConfig* Config::forScreen(const QString& screen) {
-    return GlobalConfig::forScreen(screen);
+ConfigRoot* Config::forScreen(const QString& screen) {
+    return ConfigSingleton::instance()->forScreen(screen);
 }
 
 Config* Config::qmlAttachedProperties(QObject* object) {

@@ -51,52 +51,9 @@ ColumnLayout {
             y: Tokens.padding.medium
             spacing: Tokens.spacing.medium
 
-            StyledRadioButton {
-                id: control
-
-                required property PwNode modelData
-
-                ButtonGroup.group: sinks
-                checked: Audio.sink?.id === modelData.id
-                onClicked: Audio.setAudioSink(modelData)
-                text: modelData.description
-            }
-        }
-
-        StyledText {
-            Layout.topMargin: Tokens.spacing.medium
-            text: Tr.trCtx("Input device", "audio input device")
-            font: Tokens.font.body.builders.medium.weight(Font.Medium).build()
-        }
-
-        Repeater {
-            model: Audio.sources
-
-            StyledRadioButton {
-                required property PwNode modelData
-
-                ButtonGroup.group: sources
-                checked: Audio.source?.id === modelData.id
-                onClicked: Audio.setAudioSource(modelData)
-                text: modelData.description
-            }
-        }
-
-        StyledText {
-            Layout.topMargin: Tokens.spacing.medium
-            text: Audio.muted ? Tr.tr("Volume (muted)") : Tr.tr("Volume (%1%)").arg(Math.round(Audio.volume * 100))
-            font: Tokens.font.body.builders.medium.weight(Font.Medium).build()
-        }
-
-        CustomMouseArea {
-            Layout.fillWidth: true
-            implicitHeight: Tokens.padding.medium * 3
-
-            onWheel: event => {
-                if (event.angleDelta.y > 0)
-                    Audio.incrementVolume();
-                else if (event.angleDelta.y < 0)
-                    Audio.decrementVolume();
+            StyledText {
+                text: qsTr("Output device")
+                font: Tokens.font.body.builders.medium.weight(Font.Medium).build()
             }
 
             Repeater {
@@ -156,7 +113,7 @@ ColumnLayout {
 
     StyledText {
         Layout.topMargin: Tokens.spacing.medium
-        text: qsTr("Volume (%1)").arg(Audio.muted ? qsTr("Muted") : `${Math.round(Audio.volume * 100)}%`)
+        text: Audio.muted ? qsTr("Volume (Muted)") : qsTr("Volume (%1%)").arg(Math.round(Audio.volume * 100))
         font: Tokens.font.body.builders.medium.weight(Font.Medium).build()
     }
 

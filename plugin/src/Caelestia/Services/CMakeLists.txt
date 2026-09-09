@@ -47,6 +47,7 @@ qml_module(caelestia-services
         QuickShare/QuickShareBle.hpp
         ${PROTO_SRCS}
     LIBRARIES
+        Qt::Concurrent
         Qt::DBus
         Qt::Network
         PkgConfig::Pipewire

@@ -37,7 +37,10 @@ void VisualiserBars::advance(qreal dt) {
         }
     }
 
-    update();
+    emit displayValuesChanged();
+    if (isVisible()) {
+        update();
+    }
 
     if (allSettled && !m_settled) {
         m_settled = true;
@@ -118,11 +121,16 @@ QVector<double> VisualiserBars::values() const {
     return m_targetValues;
 }
 
+QVector<double> VisualiserBars::displayValues() const {
+    return m_displayValues;
+}
+
 void VisualiserBars::setValues(const QVector<double>& values) {
     m_targetValues = values;
 
     if (m_displayValues.size() != values.size()) {
         m_displayValues.resize(values.size(), 0.0);
+        emit displayValuesChanged();
     }
 
     if (m_settled) {

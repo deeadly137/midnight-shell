@@ -42,6 +42,7 @@ class BackgroundVisualiser : public settings::ObjectNode {
     CONFIG_PROPERTY(bool, enabled, false)
     CONFIG_PROPERTY(bool, autoHide, true)
     CONFIG_PROPERTY(bool, blur, false)
+    CONFIG_PROPERTY(QString, renderer, QStringLiteral("gpu"))
     CONFIG_PROPERTY(qreal, rounding, 1)
     CONFIG_PROPERTY(qreal, spacing, 1)
 };

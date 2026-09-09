@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Caelestia.Config
+import qs.components.controls
 import qs.modules.nexus.common
 
 PageBase {
@@ -49,7 +50,6 @@ PageBase {
 
         ToggleRow {
             Layout.topMargin: Tokens.spacing.extraSmall / 2 - parent.spacing
-            last: true
             Layout.fillWidth: true
             text: qsTr("Blur background")
             subtext: qsTr("Blur the wallpaper behind the visualiser")
@@ -58,6 +58,25 @@ PageBase {
             checked: root.targetConfig.background.visualiser.blur
             onToggled: {
                 root.targetConfig.background.visualiser.blur = checked;
+                root.targetConfig.save();
+            }
+            enabled: root.targetConfig.background.visualiser.enabled
+        }
+
+        SelectRow {
+            Layout.topMargin: Tokens.spacing.extraSmall / 2 - parent.spacing
+            last: true
+            Layout.fillWidth: true
+            label: qsTr("Renderer")
+            configNode: root.targetConfig.background.visualiser
+            propertyName: "renderer"
+            menuItems: [
+                MenuItem { text: qsTr("GPU (Shader)") },
+                MenuItem { text: qsTr("CPU (QPainter)") }
+            ]
+            active: root.targetConfig.background.visualiser.renderer === "cpu" ? menuItems[1] : menuItems[0]
+            onSelected: item => {
+                root.targetConfig.background.visualiser.renderer = item === menuItems[1] ? "cpu" : "gpu";
                 root.targetConfig.save();
             }
             enabled: root.targetConfig.background.visualiser.enabled

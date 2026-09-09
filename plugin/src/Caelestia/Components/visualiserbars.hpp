@@ -13,6 +13,7 @@ class VisualiserBars : public QQuickPaintedItem {
     QML_ELEMENT
 
     Q_PROPERTY(QVector<double> values READ values WRITE setValues NOTIFY valuesChanged)
+    Q_PROPERTY(QVector<double> displayValues READ displayValues NOTIFY displayValuesChanged)
     Q_PROPERTY(QColor primaryColor READ primaryColor WRITE setPrimaryColor NOTIFY primaryColorChanged)
     Q_PROPERTY(QColor secondaryColor READ secondaryColor WRITE setSecondaryColor NOTIFY secondaryColorChanged)
     Q_PROPERTY(qreal rounding READ rounding WRITE setRounding NOTIFY roundingChanged)
@@ -29,6 +30,8 @@ public:
 
     [[nodiscard]] QVector<double> values() const;
     void setValues(const QVector<double>& values);
+
+    [[nodiscard]] QVector<double> displayValues() const;
 
     [[nodiscard]] QColor primaryColor() const;
     void setPrimaryColor(const QColor& color);
@@ -49,6 +52,7 @@ public:
 
 signals:
     void valuesChanged();
+    void displayValuesChanged();
     void primaryColorChanged();
     void secondaryColorChanged();
     void roundingChanged();

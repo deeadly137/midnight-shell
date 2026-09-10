@@ -14,7 +14,7 @@ ColumnLayout {
 
     required property string title
     required property NexusState nState
-    readonly property GlobalConfig targetConfig: GlobalConfig.forScreen(nState.targetScreen)
+    readonly property var targetConfig: GlobalConfig.forScreen(nState.targetScreen)
     property bool isSubPage
     property bool scrollable: true
     readonly property int cappedWidth: Math.min(Tokens.sizes.nexus.maxContentWidth, width)

@@ -64,6 +64,7 @@ ColumnLayout {
 
                     required property PwNode modelData
 
+                    Layout.fillWidth: true
                     ButtonGroup.group: sinks
                     checked: Audio.sink?.id === modelData.id
                     onClicked: Audio.setAudioSink(modelData)
@@ -102,6 +103,7 @@ ColumnLayout {
 
                     required property PwNode modelData
 
+                    Layout.fillWidth: true
                     ButtonGroup.group: sources
                     checked: Audio.source?.id === modelData.id
                     onClicked: Audio.setAudioSource(modelData)

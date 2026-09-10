@@ -95,6 +95,8 @@ TokensRoot::TokensRoot(const QString& path, TokensRoot* fallback, QObject* paren
     }                                                                                                                  \
                                                                                                                        \
     Root* Type::forScreen(const QString& screen) {                                                                     \
+        if (screen.isEmpty())                                                                                          \
+            return this; /* "Global" target — apply to the global root, not a phantom monitor layer */               \
         bool created;                                                                                                  \
         auto* const layer = m_layers.get(screen, this, &created);                                                      \
         if (created)                                                                                                   \

@@ -11,13 +11,31 @@ import qs.modules.nexus.common
 PageBase {
     id: root
 
-    // Temperature units (index 0 = Celsius, 1 = Fahrenheit — matches Weather.formatTemp)
+    // Temperature units (there must be one for each value of the TemperatureUnit enum)
     readonly property list<MenuItem> tempItems: [
         MenuItem {
-            text: "°C"
+            text: Tr.tr("°C")
+            value: TemperatureUnit.Celsius
         },
         MenuItem {
-            text: "°F"
+            text: Tr.tr("°F")
+            value: TemperatureUnit.Fahrenheit
+        },
+        MenuItem {
+            text: Tr.tr("K")
+            value: TemperatureUnit.Kelvin
+        }
+    ]
+
+    // Data size units (there must be one for each value of the DataUnit enum)
+    readonly property list<MenuItem> dataItems: [
+        MenuItem {
+            text: Tr.tr("Binary (KiB, MiB)")
+            value: DataUnit.Binary
+        },
+        MenuItem {
+            text: Tr.tr("Decimal (KB, MB)")
+            value: DataUnit.Decimal
         }
     ]
 
@@ -130,30 +148,28 @@ PageBase {
 
         SelectRow {
             first: true
-            label: qsTr("Temperature")
-            subtext: qsTr("Units for weather temperatures")
-            configNode: root.targetConfig.services
-            propertyName: "useFahrenheit"
+            label: Tr.tr("Temperature")
+            subtext: Tr.tr("Units for weather temperatures")
             menuItems: root.tempItems
-            active: root.tempItems[root.targetConfig.services.useFahrenheit ? 1 : 0]
-            onSelected: item => {
-                root.targetConfig.services.useFahrenheit = root.tempItems.indexOf(item) === 1;
-                root.targetConfig.save();
-            }
+            active: root.tempItems.find(i => i.value === GlobalConfig.services.weatherUnits)
+            onSelected: item => GlobalConfig.services.weatherUnits = item.value
+        }
+
+        SelectRow {
+            label: Tr.tr("System temperatures")
+            subtext: Tr.tr("Units for CPU and GPU temperatures")
+            menuItems: root.tempItems
+            active: root.tempItems.find(i => i.value === GlobalConfig.services.sensorUnits)
+            onSelected: item => GlobalConfig.services.sensorUnits = item.value
         }
 
         SelectRow {
             last: true
-            label: qsTr("System temperatures")
-            subtext: qsTr("Units for CPU and GPU temperatures")
-            configNode: root.targetConfig.services
-            propertyName: "useFahrenheitPerformance"
-            menuItems: root.tempItems
-            active: root.tempItems[root.targetConfig.services.useFahrenheitPerformance ? 1 : 0]
-            onSelected: item => {
-                root.targetConfig.services.useFahrenheitPerformance = root.tempItems.indexOf(item) === 1;
-                root.targetConfig.save();
-            }
+            label: Tr.tr("Data sizes")
+            subtext: Tr.tr("Units for data sizes and network speeds")
+            menuItems: root.dataItems
+            active: root.dataItems.find(i => i.value === GlobalConfig.services.dataUnits)
+            onSelected: item => GlobalConfig.services.dataUnits = item.value
         }
 
         // Time & date
@@ -164,16 +180,11 @@ PageBase {
         SelectRow {
             first: true
             last: true
-            label: qsTr("Clock format")
-            subtext: qsTr("How times are shown across the shell")
-            configNode: root.targetConfig.services
-            propertyName: "useTwelveHourClock"
+            label: Tr.tr("Clock format")
+            subtext: Tr.tr("How times are shown across the shell")
             menuItems: root.clockItems
-            active: root.clockItems[root.targetConfig.services.useTwelveHourClock ? 1 : 0]
-            onSelected: item => {
-                root.targetConfig.services.useTwelveHourClock = root.clockItems.indexOf(item) === 1;
-                root.targetConfig.save();
-            }
+            active: root.clockItems[GlobalConfig.services.useTwelveHourClock ? 1 : 0]
+            onSelected: item => GlobalConfig.services.useTwelveHourClock = root.clockItems.indexOf(item) === 1
         }
     }
 }

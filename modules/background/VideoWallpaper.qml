@@ -72,7 +72,7 @@ Item {
         }
 
         onPositionChanged: {
-            if (root.forceFrameRenderA && position > 0) {
+            if (root.forceFrameRenderA && playerA.position > 0) {
                 root.forceFrameRenderA = false;
                 playerA.pause();
             }
@@ -122,7 +122,7 @@ Item {
         }
 
         onPositionChanged: {
-            if (root.forceFrameRenderB && position > 0) {
+            if (root.forceFrameRenderB && playerB.position > 0) {
                 root.forceFrameRenderB = false;
                 playerB.pause();
             }

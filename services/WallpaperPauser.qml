@@ -14,6 +14,10 @@ import qs.utils
 Singleton {
     id: root
 
+    // The state directory must exist before Settings initializes, otherwise
+    // QSettings fails to persist (status 1).
+    Component.onCompleted: CUtils.mkdirp(Paths.state + "/wallpaper")
+
     property bool manualPause: false
     property bool pauseOnBattery: false
     property bool pauseOnWindowOverlap: true
@@ -32,6 +36,11 @@ Singleton {
     property bool _loaded: false
     property string pauseReason: "None"
 
+    // Non-visual singleton: read the global config directly (the screen-bound
+    // attached Config has no screen here and only warns).
+    readonly property bool cfgVideoPaused: GlobalConfig.background.videoWallpaperPaused
+    readonly property bool cfgTransparency: GlobalConfig.utilities.toasts.transparency
+
     Process {
         id: saveHwDecoderProcess
     }
@@ -41,7 +50,7 @@ Singleton {
         let reason = "None";
 
         // Rule #0 — Manual / Config Pause
-        if ((typeof Config !== "undefined" && Config.background && Config.background.videoWallpaperPaused) || manualPause) {
+        if (root.cfgVideoPaused || manualPause) {
             newPaused = true;
             reason = "Manual / Config Pause";
         } else if (pauseOnBattery && UPower.onBattery) {

@@ -375,8 +375,12 @@ Searcher {
     property alias weVolume: weSettings.volume
     property alias weSilent: weSettings.silent
     
+    Component.onCompleted: CUtils.mkdirp(Paths.state + "/wallpaper")
+
     Settings {
         id: weSettings
+        location: `${Paths.state}/wallpaper/wallpaper-engine.ini`
+        category: "WallpaperEngine"
         property real volume: 0.15
         property bool silent: false
     }

@@ -267,4 +267,10 @@ QString CUtils::qtVersion() {
     return QStringLiteral(QT_VERSION_STR);
 }
 
+// Creates a directory tree (like QDir::mkpath). Needed because QSettings and
+// friends do not create missing parent directories on their own.
+bool CUtils::mkdirp(const QString& path) {
+    return QDir().mkpath(path);
+}
+
 } // namespace caelestia

@@ -24,19 +24,19 @@ Item {
     Component.onCompleted: fetchNews()
 
     function fetchNews() {
-        if (isFetching) return;
-        isFetching = true;
-        errorMessage = "";
+        if (root.isFetching) return;
+        root.isFetching = true;
+        root.errorMessage = "";
         
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "https://archlinux.org/feeds/news/");
         xhr.onreadystatechange = function() {
             if (xhr.readyState === XMLHttpRequest.DONE) {
-                isFetching = false;
+                root.isFetching = false;
                 if (xhr.status === 200) {
                     parseNews(xhr.responseText);
                 } else {
-                    errorMessage = qsTr("Failed to fetch news (Status: %1)").arg(xhr.status);
+                    root.errorMessage = qsTr("Failed to fetch news (Status: %1)").arg(xhr.status);
                 }
             }
         };
@@ -78,7 +78,7 @@ Item {
         }
         
         if (newsModel.count === 0) {
-            errorMessage = qsTr("No news articles found.");
+            root.errorMessage = qsTr("No news articles found.");
         }
     }
 

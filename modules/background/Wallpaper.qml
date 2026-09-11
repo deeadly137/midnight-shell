@@ -325,8 +325,9 @@ Item {
             CachingAnimatedImage {
                 id: gifImg
                 anchors.fill: parent
-                path: img.verifiedPath
-                source: img.verifiedPath || ""
+                // Only GIFs go through the animated-image path; videos are handled
+                // by the video channel loader below and must never reach AnimatedImage.
+                path: img.isGif ? img.verifiedPath : ""
                 playing: !WallpaperPauser.paused
                 visible: img.isGif && !img.isVideo
                 asynchronous: true

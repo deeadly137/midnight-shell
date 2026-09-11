@@ -40,6 +40,7 @@ public:
 
     [[nodiscard]] static QString version();
     [[nodiscard]] static QString qtVersion();
+    Q_INVOKABLE static bool mkdirp(const QString& path);
 };
 
 } // namespace caelestia

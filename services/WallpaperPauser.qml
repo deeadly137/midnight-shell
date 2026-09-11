@@ -6,6 +6,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Services.UPower
 import Quickshell.Io
+import Caelestia
 import Caelestia.Config
 
 import qs.services

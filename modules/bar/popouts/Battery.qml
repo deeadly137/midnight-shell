@@ -10,6 +10,22 @@ import qs.services
 Column {
     id: root
 
+    // NOTE: dropped by the upstream merge (calls survived, definition did not).
+    function formatSeconds(s: int): string {
+        const day = Math.floor(s / 86400);
+        const hr = Math.floor(s / 3600) % 24;
+        const min = Math.floor(s / 60) % 60;
+
+        let comps = [];
+        if (day > 0)
+            comps.push(Tr.trN("%n day", "%n days", day));
+        if (hr > 0)
+            comps.push(Tr.trN("%n hour", "%n hours", hr));
+        if (min > 0)
+            comps.push(Tr.trN("%n min", "%n mins", min));
+
+        return comps.join(Tr.trCtx(", ", "duration component separator"));
+    }
     required property var popouts
     property bool _isSidebarOpen: popouts && popouts.sidebarOpen && popouts.isHorizontal && popouts.currentSection === "end"
 

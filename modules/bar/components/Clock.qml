@@ -13,9 +13,13 @@ StyledRect {
     readonly property int padding: Config.bar.clock.background ? Tokens.padding.medium : Tokens.padding.extraSmall
     readonly property var font: Tokens.font.body.builders.small.scale(1.1)
 
-    function fontFor(text: string, metricWidth: int, hourMetrics: TextMetrics, minMetrics: TextMetrics): font {
-        // We don't count seconds for the max width because it changes too often
-        const scale = text === "11" ? 1.15 : Math.min(1.05, Math.max(hourMetrics.width, minMetrics.width) / metricWidth);
+    function fontFor(text: string, metricWidth: int): font {
+        // We don't count seconds for the max width because it changes too often.
+        // Metrics can be null while their owners are still incubating — fall back
+        // to the requested width so the binding doesn't error out permanently.
+        const hourW = hourMetrics?.width ?? metricWidth;
+        const minW = minMetrics?.width ?? metricWidth;
+        const scale = text === "11" ? 1.15 : Math.min(1.05, Math.max(hourW, minW) / metricWidth);
         return root.font.width(scale * 100).letterSpacing(scale).build();
     }
 
@@ -197,25 +201,11 @@ StyledRect {
             }
         }
 
-        Loader {
-            Layout.topMargin: -parent.spacing - 4
-            Layout.alignment: Qt.AlignHCenter
-            asynchronous: true
-            active: Config.bar.clock.showSeconds
-            visible: active
+        TextMetrics {
+            id: secMetrics
 
-            sourceComponent: StyledText {
-                text: Time.format("ss")
-                font: root.fontFor(text, secMetrics.width)
-                color: root.colour
-
-                TextMetrics {
-                    id: secMetrics
-
-                    font: root.font.build()
-                    text: Time.format("ss")
-                }
-            }
+            font: root.font.build()
+            text: Time.format("ss")
         }
 
         Loader {
@@ -227,15 +217,8 @@ StyledRect {
 
             sourceComponent: StyledText {
                 text: Time.format("ss")
-                font: root.fontFor(text, secMetrics.width, hourMetrics, minMetrics)
+                font: root.fontFor(text, secMetrics.width)
                 color: root.colour
-
-                TextMetrics {
-                    id: secMetrics
-
-                    font: root.font.build()
-                    text: Time.format("ss")
-                }
             }
         }
 

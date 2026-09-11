@@ -31,6 +31,10 @@ Item {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "https://archlinux.org/feeds/news/");
         xhr.onreadystatechange = function() {
+            // The sidebar can be destroyed while the request is in flight;
+            // the captured context dies with it, so bail out instead of writing.
+            if (!root)
+                return;
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 root.isFetching = false;
                 if (xhr.status === 200) {

@@ -14,10 +14,6 @@ import qs.utils
 Singleton {
     id: root
 
-    // The state directory must exist before Settings initializes, otherwise
-    // QSettings fails to persist (status 1).
-    Component.onCompleted: CUtils.mkdirp(Paths.state + "/wallpaper")
-
     property bool manualPause: false
     property bool pauseOnBattery: false
     property bool pauseOnWindowOverlap: true
@@ -162,6 +158,7 @@ Singleton {
     }
 
     Component.onCompleted: {
+        CUtils.mkdirp(Paths.state + "/wallpaper"); // must exist before Settings persists
         root._loaded = true;
         recalculate();
     }

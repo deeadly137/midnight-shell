@@ -12,6 +12,11 @@ Item {
     required property Repeater workspaces
     required property var occupied
     required property int groupOffset
+    required property bool layoutTransitionRunning
+    required property var workspaceIndex
+
+    // Horizontal (top/bottom bar) support
+    readonly property bool isHorizontal: Config.bar.position === "top" || Config.bar.position === "bottom"
 
     property list<var> pills: []
 
@@ -52,15 +57,13 @@ Item {
 
             required property var modelData
 
-            readonly property Workspace start: root.workspaces.count > 0 ? root.workspaces.itemAt(getWsIdx(modelData.start)) ?? null : null // qmllint disable incompatible-type
-            readonly property Workspace end: root.workspaces.count > 0 ? root.workspaces.itemAt(getWsIdx(modelData.end)) ?? null : null // qmllint disable incompatible-type
-            readonly property bool isHorizontal: Config.bar.position === "top" || Config.bar.position === "bottom"
-
-            function getWsIdx(ws: int): int {
-                let i = ws - 1;
-                while (i < 0)
-                    i += Config.bar.workspaces.shown;
-                return i % Config.bar.workspaces.shown;
+            readonly property Workspace start: {
+                root.workspaces.count;
+                return root.workspaces.itemAt(root.workspaceIndex(modelData.start)) as Workspace ?? null;
+            }
+            readonly property Workspace end: {
+                root.workspaces.count;
+                return root.workspaces.itemAt(root.workspaceIndex(modelData.end)) as Workspace ?? null;
             }
 
             anchors.horizontalCenter: isHorizontal ? undefined : root.horizontalCenter
@@ -84,25 +87,25 @@ Item {
             }
 
             Behavior on x {
-                enabled: isHorizontal
+                enabled: isHorizontal && !root.layoutTransitionRunning
 
                 Anim {}
             }
 
             Behavior on y {
-                enabled: !isHorizontal
+                enabled: !isHorizontal && !root.layoutTransitionRunning
 
                 Anim {}
             }
 
             Behavior on implicitWidth {
-                enabled: isHorizontal
+                enabled: isHorizontal && !root.layoutTransitionRunning
 
                 Anim {}
             }
 
             Behavior on implicitHeight {
-                enabled: !isHorizontal
+                enabled: !isHorizontal && !root.layoutTransitionRunning
 
                 Anim {}
             }

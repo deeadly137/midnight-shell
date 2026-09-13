@@ -122,8 +122,10 @@ StyledRect {
 
         x: isHorizontal ? -parent.offset : 0
         y: isHorizontal ? 0 : -parent.offset
-        implicitWidth: isHorizontal ? root.mask.implicitWidth : root.mask.implicitHeight
-        implicitHeight: isHorizontal ? root.mask.implicitHeight : root.mask.implicitWidth
+        // The mask is sampled in its native orientation in both cases: the swap
+        // only applies to the horizontal bar (mask laid out as a row).
+        implicitWidth: isHorizontal ? root.mask.implicitHeight : root.mask.implicitWidth
+        implicitHeight: isHorizontal ? root.mask.implicitWidth : root.mask.implicitHeight
 
         anchors.horizontalCenter: isHorizontal ? undefined : parent.horizontalCenter
         anchors.verticalCenter: isHorizontal ? parent.verticalCenter : undefined

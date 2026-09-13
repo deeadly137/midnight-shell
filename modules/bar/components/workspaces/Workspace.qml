@@ -329,6 +329,8 @@ GridLayout {
         id: columnComponent
 
         Column {
+            id: iconColumn
+
             spacing: 0
 
             add: Transition {
@@ -352,12 +354,18 @@ GridLayout {
             }
 
             Repeater {
+                id: iconRepeater
+
                 model: ScriptModel {
                     values: {
                         const ws = root.ws;
                         const windows = Hypr.toplevels.values.filter(c => c.workspace?.id === ws);
                         const maxIcons = root.Config.bar.workspaces.maxWindowIcons;
-                        return maxIcons > 0 ? windows.slice(0, maxIcons) : windows;
+                        // Keep the stack inside the pill: the vertical pill is only
+                        // Tokens.sizes.bar.innerWidth tall, so cap the icon count.
+                        const fit = Math.max(1, Math.floor((root.height - 4) / 13));
+                        const cap = maxIcons > 0 ? maxIcons : windows.length;
+                        return windows.slice(0, Math.min(cap, fit));
                     }
                 }
 
@@ -366,7 +374,11 @@ GridLayout {
 
                     grade: 0
                     text: Icons.getAppCategoryIcon(modelData.lastIpcObject.class, "terminal")
-                    color: Colours.palette.m3onSurfaceVariant
+                    // Scale down so the stack fits the pill height instead of
+                    // being clipped into stripes by the reveal clip.
+                    fontStyle: Tokens.font.icon.size(Math.max(6, Math.min(15, (root.height - 4) * 0.75 / Math.max(1, iconRepeater.count))))
+                    // Dark on the bright workspace shape so window icons stay visible
+                    color: root.focused || root.isOccupied ? Colours.palette.m3surface : Colours.palette.m3onSurfaceVariant
                 }
             }
         }
@@ -399,6 +411,8 @@ GridLayout {
             }
 
             Repeater {
+                id: iconRepeaterH
+
                 model: ScriptModel {
                     values: {
                         const windows = Hypr.toplevelsForWs(root.ws);
@@ -412,7 +426,7 @@ GridLayout {
 
                     grade: 0
                     text: Icons.getAppCategoryIcon(modelData.lastIpcObject.class, "terminal")
-                    color: Colours.palette.m3onSurfaceVariant
+                    color: root.focused || root.isOccupied ? Colours.palette.m3surface : Colours.palette.m3onSurfaceVariant
                 }
             }
         }

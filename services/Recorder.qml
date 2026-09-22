@@ -51,10 +51,11 @@ Singleton {
         onExited: code => { // qmllint disable signal-handler-parameters
             const running = code === 0;
 
+            // All CLI invocations are detached: an attached child inherits the
+            // shell's stdin pipe (which made slurp hang invisibly forever) and
+            // `caelestia record` blocks on its toasts / region selection, which
+            // would serialize every later command behind it.
             if (running && root.needsStop) {
-                // Detached: the stop CLI blocks until its toast buttons are
-                // clicked, and must not hold commandProc (a pending start
-                // would be lost). The poll reconciles the real state.
                 Quickshell.execDetached(["caelestia", "record"]);
                 props.running = false;
                 props.paused = false;
@@ -63,14 +64,14 @@ Singleton {
                 Quickshell.execDetached(["caelestia", "record", "-p"]);
                 props.paused = !props.paused;
             } else if (!running && root.needsStart) {
-                commandProc.exec(["caelestia", "record", ...root.startArgs]);
+                Quickshell.execDetached(["caelestia", "record", ...root.startArgs]);
                 props.running = true;
                 props.paused = false;
                 props.elapsed = 0;
                 Audio.playVideoRecord();
-            } else if (running !== props.running && !commandProc.running) {
+            } else if (running !== props.running) {
                 // The recording was started/stopped outside the shell (e.g. via
-                // keybind), or our command finished without reaching the optimistic state
+                // keybind), or a region selection is pending/was cancelled
                 props.running = running;
                 props.paused = false;
                 props.elapsed = 0;
@@ -80,19 +81,6 @@ Singleton {
             root.needsStop = false;
             root.needsPause = false;
         }
-    }
-
-    Process {
-        id: commandProc
-
-        // Never hand our stdin pipe down the chain: `caelestia record -r`
-        // spawns slurp, which has been observed hanging forever while reading
-        // an inherited, never-written pipe instead of showing its UI.
-        stdinEnabled: false
-
-        // The command owns the start transition: `caelestia record -r` blocks
-        // on slurp for region captures. Reconcile once it has finished.
-        onExited: checkProc.running = true // qmllint disable signal-handler-parameters
     }
 
     // Only poll while something is showing the state, i.e. the utilities drawer is open

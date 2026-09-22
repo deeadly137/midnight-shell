@@ -35,6 +35,17 @@ Item {
     property int frameIndex: 0
     property bool facingRight: true
 
+    // The opaque bounding box of the frame currently displayed, mirror-adjusted
+    readonly property string frameFile: animFrame(currentAnim, frameIndex)
+    readonly property var frameBox: frameBoxes[frameFile] ?? [30, 35, 77, 91]
+    // The alpha mask is only trustworthy when it matches the displayed frame
+    readonly property bool maskReady: maskSource.status === Image.Ready
+        && maskSource.paintedFile === imgPath + frameFile
+    readonly property real boxX: dragging ? 0 : (facingRight ? 128 - frameBox[0] - frameBox[2] : frameBox[0])
+    readonly property real boxY: dragging ? 0 : frameBox[1]
+    readonly property real boxW: dragging ? 128 : frameBox[2]
+    readonly property real boxH: dragging ? 128 - frameBox[1] : frameBox[3]
+
     // Frame tables for the standard 46-image shimeji layout
     // 1-3 walk · 4 fall · 5-10 drag poses (H-up, H-down, diag-up, diag-down,
     // steep-up, steep-down) · 11 idle · 12-14 climb · 15-17 ice cream ·
@@ -55,7 +66,6 @@ Item {
         ceiling: ["shime23.png", "shime24.png", "shime25.png"],
         pizza: ["shime26.png", "shime27.png", "shime28.png", "shime29.png"],
         munch: ["shime30.png", "shime31.png", "shime32.png", "shime33.png"],
-        grab: ["shime34.png", "shime35.png", "shime36.png"],
         jump: ["shime37.png"],
         land: ["shime20.png"],
         donut: ["shime38.png", "shime39.png", "shime40.png", "shime41.png"]
@@ -125,7 +135,7 @@ Item {
             return 160;
         if (anim === "fall" || anim === "jump")
             return 100;
-        if (anim === "snack" || anim === "munch" || anim === "donut" || anim === "grab")
+        if (anim === "snack" || anim === "munch" || anim === "donut")
             return 260;
         if (anim === "pizza")
             return 320;
@@ -334,14 +344,6 @@ Item {
     width: 128
     height: 128
 
-    // The opaque bounding box of the frame currently displayed, mirror-adjusted
-    readonly property string frameFile: animFrame(currentAnim, frameIndex)
-    readonly property var frameBox: frameBoxes[frameFile] ?? [30, 35, 77, 91]
-    readonly property real boxX: dragging ? 0 : (facingRight ? 128 - frameBox[0] - frameBox[2] : frameBox[0])
-    readonly property real boxY: dragging ? 0 : frameBox[1]
-    readonly property real boxW: dragging ? 128 : frameBox[2]
-    readonly property real boxH: dragging ? 128 - frameBox[1] : frameBox[3]
-
     Component.onCompleted: {
         const margin = 50;
         x = margin + Math.random() * (screenSize.width - 128 - margin * 2);
@@ -372,6 +374,8 @@ Item {
         }
     }
 
+    onCurrentAnimChanged: animTimer.restart()
+
     MouseArea {
         id: grabArea
 
@@ -388,14 +392,18 @@ Item {
         acceptedButtons: Qt.LeftButton
 
         onPressed: mouse => {
-            // Ignore clicks on transparent pixels of the current frame
-            const cx = Math.max(0, Math.min(127, Math.round(mouse.x)));
-            const cy = Math.max(0, Math.min(127, Math.round(mouse.y)));
-            const sx = root.facingRight ? 127 - cx : cx;
-            const data = maskCanvas.context.getImageData(sx, cy, 1, 1).data;
-            if (data[3] < 20) {
-                mouse.accepted = false;
-                return;
+            // When the alpha mask matches the displayed frame, ignore clicks
+            // on transparent pixels; if it is stale/missing, fail open so the
+            // grab never becomes unavailable
+            if (root.maskReady && maskCanvas.context) {
+                const cx = Math.max(0, Math.min(127, Math.round(mouse.x)));
+                const cy = Math.max(0, Math.min(127, Math.round(mouse.y)));
+                const sx = root.facingRight ? 127 - cx : cx;
+                const data = maskCanvas.context.getImageData(sx, cy, 1, 1).data;
+                if (data[3] < 20) {
+                    mouse.accepted = false;
+                    return;
+                }
             }
 
             dragging = true;
@@ -454,13 +462,17 @@ Item {
         onPaint: {
             const ctx = getContext("2d");
             ctx.clearRect(0, 0, width, height);
-            if (maskSource.status === Image.Ready)
+            if (maskSource.status === Image.Ready) {
                 ctx.drawImage(maskSource, 0, 0, 128, 128);
+                maskSource.paintedFile = maskSource.source;
+            }
         }
     }
 
     Image {
         id: maskSource
+
+        property string paintedFile: ""
 
         opacity: 0
         source: root.imgPath + root.frameFile
@@ -468,6 +480,11 @@ Item {
         sourceSize.height: 128
         cache: true
         onStatusChanged: {
+            if (status === Image.Ready)
+                maskCanvas.requestPaint();
+        }
+        // Cached frames never re-fire onStatusChanged — repaint on every swap
+        onSourceChanged: {
             if (status === Image.Ready)
                 maskCanvas.requestPaint();
         }
@@ -507,8 +524,6 @@ Item {
         }
     }
 
-    onCurrentAnimChanged: animTimer.restart()
-
     // Brief settle pose on landing, then a fresh idle pick
     Timer {
         id: landTimer
@@ -517,23 +532,6 @@ Item {
         onTriggered: {
             if (root.onGround && !root.dragging)
                 root.pickIdle();
-        }
-    }
-
-    // The window-grab anim ends with the shimeji jumping away (37)
-    Timer {
-        id: grabTimer
-
-        interval: 1600
-        onTriggered: {
-            if (currentAnim !== "grab" || dragging || !onGround)
-                return;
-
-            currentAnim = "jump";
-            frameIndex = 0;
-            onGround = false;
-            vy = -5 - Math.random() * 2;
-            vx = (Math.random() < 0.5 ? -1 : 1) * 2.5;
         }
     }
 
@@ -552,23 +550,19 @@ Item {
                 return;
 
             const roll = Math.random();
-            if (roll < 0.16) {
+            if (roll < 0.18) {
                 pickIdle();
-            } else if (roll < 0.38) {
+            } else if (roll < 0.42) {
                 walkRandom();
-            } else if (roll < 0.48) {
+            } else if (roll < 0.54) {
                 startSnack();
-            } else if (roll < 0.56) {
+            } else if (roll < 0.64) {
                 currentAnim = "pizza";
                 frameIndex = 0;
-            } else if (roll < 0.68) {
+            } else if (roll < 0.80) {
                 startClimb();
-            } else if (roll < 0.74) {
+            } else if (roll < 0.88) {
                 hop();
-            } else if (roll < 0.82) {
-                currentAnim = "grab";
-                frameIndex = 0;
-                grabTimer.restart();
             } else {
                 currentAnim = "sad";
                 frameIndex = 0;

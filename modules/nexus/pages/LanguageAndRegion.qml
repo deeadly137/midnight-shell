@@ -182,6 +182,7 @@ PageBase {
             last: true
             label: Tr.tr("Clock format")
             subtext: Tr.tr("How times are shown across the shell")
+            menuOnTop: true
             menuItems: root.clockItems
             active: root.clockItems[GlobalConfig.services.useTwelveHourClock ? 1 : 0]
             onSelected: item => GlobalConfig.services.useTwelveHourClock = root.clockItems.indexOf(item) === 1

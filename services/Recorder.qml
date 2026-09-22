@@ -11,6 +11,7 @@ Singleton {
     readonly property alias running: props.running
     readonly property alias paused: props.paused
     readonly property alias elapsed: props.elapsed
+    property int refCount: 0
     property bool needsStart
     property list<string> startArgs
     property bool needsStop
@@ -48,24 +49,28 @@ Singleton {
         running: true
         command: ["pidof", "gpu-screen-recorder"]
         onExited: code => { // qmllint disable signal-handler-parameters
-            props.running = code === 0;
+            const running = code === 0;
 
-            if (code === 0) {
-                if (root.needsStop) {
-                    Quickshell.execDetached(["caelestia", "record"]);
-                    props.running = false;
-                    props.paused = false;
-                    Audio.playVideoStop();
-                } else if (root.needsPause) {
-                    Quickshell.execDetached(["caelestia", "record", "-p"]);
-                    props.paused = !props.paused;
-                }
-            } else if (root.needsStart) {
-                Quickshell.execDetached(["caelestia", "record", ...root.startArgs]);
+            if (running && root.needsStop) {
+                commandProc.exec(["caelestia", "record"]);
+                props.running = false;
+                props.paused = false;
+                Audio.playVideoStop();
+            } else if (running && root.needsPause) {
+                commandProc.exec(["caelestia", "record", "-p"]);
+                props.paused = !props.paused;
+            } else if (!running && root.needsStart) {
+                commandProc.exec(["caelestia", "record", ...root.startArgs]);
                 props.running = true;
                 props.paused = false;
                 props.elapsed = 0;
                 Audio.playVideoRecord();
+            } else if (running !== props.running && !commandProc.running) {
+                // The recording was started/stopped outside the shell (e.g. via
+                // keybind), or our command finished without reaching the optimistic state
+                props.running = running;
+                props.paused = false;
+                props.elapsed = 0;
             }
 
             root.needsStart = false;
@@ -74,8 +79,27 @@ Singleton {
         }
     }
 
+    Process {
+        id: commandProc
+
+        // The command owns the transition: `caelestia record` blocks on slurp for
+        // region captures, and waits for the recorder to finalise the file when
+        // stopping. Reconcile once it has actually finished.
+        onExited: checkProc.running = true // qmllint disable signal-handler-parameters
+    }
+
+    // Only poll while something is showing the state, i.e. the utilities drawer is open
+    Timer {
+        interval: 1000
+        running: root.refCount > 0
+        repeat: true
+        triggeredOnStart: true
+
+        onTriggered: checkProc.running = true
+    }
+
     Connections {
-        // enabled: props.running && !props.paused
+        enabled: props.running && !props.paused
         function onSecondsChanged(): void {
             props.elapsed++;
         }

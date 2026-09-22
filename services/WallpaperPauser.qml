@@ -21,9 +21,9 @@ Singleton {
         id: pauserStore
 
         path: `${Paths.state}/wallpaper/pauser.json`
+        printErrors: false
         watchChanges: true
         onFileChanged: reload()
-        onLoaded: root._loaded = true
 
         JsonAdapter {
             id: pauserAdapter
@@ -35,12 +35,24 @@ Singleton {
         }
     }
 
+    // The python CLI reads this file before the Qt application starts in order to
+    // inject QT_FFMPEG_DECODING_HW_DEVICE_TYPES; kept in sync by setHwDecoder().
+    FileView {
+        id: hwDecoderStore
+
+        path: `${Paths.cache}/hwDecoder.txt`
+        printErrors: false
+    }
+
+    Process {
+        id: restartShellProc
+    }
+
     property alias manualPause: pauserAdapter.manualPause
     property alias pauseOnBattery: pauserAdapter.pauseOnBattery
     property alias pauseOnWindowOverlap: pauserAdapter.pauseOnWindowOverlap
     property alias hwDecoder: pauserAdapter.hwDecoder
     property bool paused: false
-    property bool _loaded: false
     property string pauseReason: "None"
 
     // Non-visual singleton: read the global config directly (the screen-bound
@@ -48,8 +60,22 @@ Singleton {
     readonly property bool cfgVideoPaused: GlobalConfig.background.videoWallpaperPaused
     readonly property bool cfgTransparency: GlobalConfig.utilities.toasts.transparency
 
-    Process {
-        id: saveHwDecoderProcess
+    function persist(): void {
+        pauserStore.writeAdapter();
+    }
+
+    // Setting the decoder must restart the shell: the CLI injects the env var only
+    // at process start. Called from the UI; file-load driven changes never land here,
+    // so a restart can not be triggered from loading pauser.json.
+    function setHwDecoder(v: string): void {
+        if (v === pauserAdapter.hwDecoder)
+            return;
+
+        pauserAdapter.hwDecoder = v;
+        root.persist();
+        hwDecoderStore.setText(v);
+        restartShellProc.command = ["sh", "-c", "nohup sh -c 'sleep 1 && caelestia shell -d' >/dev/null 2>&1 & sleep 0.5 && caelestia shell -k"];
+        restartShellProc.running = true;
     }
 
     function recalculate() {
@@ -148,29 +174,23 @@ Singleton {
     }
 
     onManualPauseChanged: {
+        pauserStore.writeAdapter();
         recalculate();
     }
 
     onPauseOnBatteryChanged: {
+        pauserStore.writeAdapter();
         recalculate();
     }
 
     onPauseOnWindowOverlapChanged: {
+        pauserStore.writeAdapter();
         recalculate();
     }
 
-    onHwDecoderChanged: {
-        // We still need to sync this to a text file because the python CLI needs to read it
-        // BEFORE the Qt application starts in order to inject the environment variables.
-        if (root._loaded) {
-            saveHwDecoderProcess.command = ["sh", "-c", "echo '" + root.hwDecoder + "' > ~/.cache/caelestia/hwDecoder.txt && nohup sh -c 'sleep 0.5 && caelestia shell -d' >/dev/null 2>&1 & caelestia shell -k"];
-            saveHwDecoderProcess.running = true;
-        }
-    }
-
     Component.onCompleted: {
-        CUtils.mkdirp(Paths.state + "/wallpaper"); // must exist before Settings persists
-        root._loaded = true;
+        CUtils.mkdirp(Paths.state + "/wallpaper"); // must exist before the pauser state persists
+        CUtils.mkdirp(Paths.cache); // must exist before hwDecoder.txt persists
         recalculate();
     }
 }

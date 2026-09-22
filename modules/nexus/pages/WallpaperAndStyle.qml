@@ -268,7 +268,7 @@ PageBase {
             menuOnTop: true
             menuItems: root.hwDecoderItems
             active: root.hwDecoderItems[root.hwDecoderToIndex(WallpaperPauser.hwDecoder)]
-            onSelected: item => WallpaperPauser.hwDecoder = root.hwDecoderValues[root.hwDecoderItems.indexOf(item)]
+            onSelected: item => WallpaperPauser.setHwDecoder(root.hwDecoderValues[root.hwDecoderItems.indexOf(item)])
         }
 
         ToggleRow {

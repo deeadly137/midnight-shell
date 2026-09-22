@@ -374,6 +374,8 @@ Searcher {
 
     property alias weVolume: weAdapter.volume
     property alias weSilent: weAdapter.silent
+    onWeVolumeChanged: weStore.writeAdapter()
+    onWeSilentChanged: weStore.writeAdapter()
     
     Component.onCompleted: CUtils.mkdirp(Paths.state + "/wallpaper")
 

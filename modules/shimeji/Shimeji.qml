@@ -56,6 +56,23 @@ StyledWindow {
         return path.replace(/\/?$/, "/");
     }
 
+    // The window's input mask covers only the sprites — everything outside
+    // their rects passes input through to windows, panels and the desktop.
+    property list<Region> spriteMasks: []
+
+    mask: Region {
+        regions: root.spriteMasks
+    }
+
+    function registerSpriteMask(region: Region): void {
+        if (!root.spriteMasks.includes(region))
+            root.spriteMasks = [...root.spriteMasks, region];
+    }
+
+    function unregisterSpriteMask(region: Region): void {
+        root.spriteMasks = root.spriteMasks.filter(m => m !== region);
+    }
+
     screen: modelData
     visible: shouldBeVisible
 
@@ -88,6 +105,7 @@ StyledWindow {
             model: root.shimejiCount > 0 ? root.shimejiCount : 1
 
             ShimejiSprite {
+                maskHost: root
                 screenSize: Qt.size(shimejiScreen.width, shimejiScreen.height)
                 borderThickness: root.borderThickness
                 floorOffset: root.floorOffset

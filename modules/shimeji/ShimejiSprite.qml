@@ -35,6 +35,13 @@ Item {
     property int frameIndex: 0
     property bool facingRight: true
 
+    // This sprite's input region, registered on the hosting window's mask so
+    // clicks pass through everywhere except the sprite itself
+    property var maskHost: null
+    readonly property Region inputMask: Region {
+        item: root
+    }
+
     // Frame tables for the standard 46-image shimeji layout
     // 1-3 walk · 4 fall · 5-10 drag poses (H-up, H-down, diag-up, diag-down,
     // steep-up, steep-down) · 11 idle · 12-14 climb · 15-17 ice cream ·
@@ -282,6 +289,9 @@ Item {
     height: 128
 
     Component.onCompleted: {
+        if (maskHost)
+            maskHost.registerSpriteMask(inputMask);
+
         const margin = 50;
         x = margin + Math.random() * (screenSize.width - 128 - margin * 2);
         y = floorY;
@@ -289,6 +299,11 @@ Item {
         vx = 0;
         vy = 0;
         pickIdle();
+    }
+
+    Component.onDestruction: {
+        if (maskHost)
+            maskHost.unregisterSpriteMask(inputMask);
     }
 
     onDraggingChanged: {

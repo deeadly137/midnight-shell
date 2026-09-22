@@ -52,12 +52,15 @@ Singleton {
             const running = code === 0;
 
             if (running && root.needsStop) {
-                commandProc.exec(["caelestia", "record"]);
+                // Detached: the stop CLI blocks until its toast buttons are
+                // clicked, and must not hold commandProc (a pending start
+                // would be lost). The poll reconciles the real state.
+                Quickshell.execDetached(["caelestia", "record"]);
                 props.running = false;
                 props.paused = false;
                 Audio.playVideoStop();
             } else if (running && root.needsPause) {
-                commandProc.exec(["caelestia", "record", "-p"]);
+                Quickshell.execDetached(["caelestia", "record", "-p"]);
                 props.paused = !props.paused;
             } else if (!running && root.needsStart) {
                 commandProc.exec(["caelestia", "record", ...root.startArgs]);
@@ -82,9 +85,13 @@ Singleton {
     Process {
         id: commandProc
 
-        // The command owns the transition: `caelestia record` blocks on slurp for
-        // region captures, and waits for the recorder to finalise the file when
-        // stopping. Reconcile once it has actually finished.
+        // Never hand our stdin pipe down the chain: `caelestia record -r`
+        // spawns slurp, which has been observed hanging forever while reading
+        // an inherited, never-written pipe instead of showing its UI.
+        stdinEnabled: false
+
+        // The command owns the start transition: `caelestia record -r` blocks
+        // on slurp for region captures. Reconcile once it has finished.
         onExited: checkProc.running = true // qmllint disable signal-handler-parameters
     }
 

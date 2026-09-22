@@ -35,23 +35,12 @@ Item {
     property int frameIndex: 0
     property bool facingRight: true
 
-    // The opaque bounding box of the frame currently displayed, mirror-adjusted
-    readonly property string frameFile: animFrame(currentAnim, frameIndex)
-    readonly property var frameBox: frameBoxes[frameFile] ?? [30, 35, 77, 91]
-    // The alpha mask is only trustworthy when it matches the displayed frame
-    readonly property bool maskReady: maskSource.status === Image.Ready
-        && maskSource.paintedFile === imgPath + frameFile
-    readonly property real boxX: dragging ? 0 : (facingRight ? 128 - frameBox[0] - frameBox[2] : frameBox[0])
-    readonly property real boxY: dragging ? 0 : frameBox[1]
-    readonly property real boxW: dragging ? 128 : frameBox[2]
-    readonly property real boxH: dragging ? 128 - frameBox[1] : frameBox[3]
-
     // Frame tables for the standard 46-image shimeji layout
     // 1-3 walk · 4 fall · 5-10 drag poses (H-up, H-down, diag-up, diag-down,
     // steep-up, steep-down) · 11 idle · 12-14 climb · 15-17 ice cream ·
-    // 18/21 saddened flat · 19 sit happy · 20/24 neutral flat · 22 stand happy ·
-    // 23-25 ceiling walk · 26-29 pizza thought · 30-33 chicken · 34-36 window
-    // grab · 37 jump away · 38-41 donut · 42-46 placeholders
+    // 18/21 saddened flat · 19 sit happy · 20 neutral flat · 22 stand happy ·
+    // 23-25 ceiling walk · 26-29 pizza thought · 30-33 chicken · 37 jump away ·
+    // 38-41 donut · 34-36 window grab and 42-46 unused
     readonly property var anims: ({
         walk: ["shime1.png", "shime2.png", "shime3.png"],
         fall: ["shime4.png"],
@@ -69,58 +58,6 @@ Item {
         jump: ["shime37.png"],
         land: ["shime20.png"],
         donut: ["shime38.png", "shime39.png", "shime40.png", "shime41.png"]
-    })
-
-    // Per-frame opaque bounding boxes: [x, y, w, h] inside the 128px canvas
-    // (measured from the alpha channel of the default pack; mirror-aware
-    // consumers recompute x). Empty frames fall back to the body rect.
-    readonly property var frameBoxes: ({
-        "shime1.png": [4, 53, 121, 73],
-        "shime2.png": [8, 49, 120, 75],
-        "shime3.png": [5, 51, 120, 73],
-        "shime4.png": [6, 0, 97, 126],
-        "shime5.png": [9, 47, 116, 78],
-        "shime6.png": [5, 50, 117, 74],
-        "shime7.png": [11, 37, 112, 89],
-        "shime8.png": [5, 46, 110, 78],
-        "shime9.png": [21, 31, 98, 89],
-        "shime10.png": [7, 30, 101, 91],
-        "shime11.png": [30, 35, 77, 91],
-        "shime12.png": [55, 8, 73, 116],
-        "shime13.png": [55, 10, 73, 115],
-        "shime14.png": [57, 9, 71, 115],
-        "shime15.png": [26, 34, 82, 93],
-        "shime16.png": [26, 34, 82, 93],
-        "shime17.png": [26, 33, 82, 95],
-        "shime18.png": [3, 74, 122, 54],
-        "shime19.png": [18, 53, 92, 74],
-        "shime20.png": [3, 78, 122, 50],
-        "shime21.png": [3, 29, 121, 99],
-        "shime22.png": [4, 53, 121, 73],
-        "shime23.png": [4, 47, 121, 73],
-        "shime24.png": [5, 49, 120, 75],
-        "shime25.png": [4, 48, 120, 73],
-        "shime26.png": [24, 0, 77, 128],
-        "shime27.png": [24, 0, 77, 128],
-        "shime28.png": [24, 0, 77, 128],
-        "shime29.png": [24, 0, 77, 128],
-        "shime30.png": [22, 29, 92, 95],
-        "shime31.png": [23, 31, 85, 96],
-        "shime32.png": [22, 28, 93, 98],
-        "shime33.png": [24, 35, 95, 86],
-        "shime34.png": [28, 19, 93, 103],
-        "shime35.png": [25, 19, 96, 103],
-        "shime36.png": [25, 19, 96, 103],
-        "shime37.png": [21, 16, 101, 107],
-        "shime38.png": [10, 32, 99, 93],
-        "shime39.png": [7, 35, 103, 91],
-        "shime40.png": [10, 32, 99, 93],
-        "shime41.png": [8, 36, 101, 91],
-        "shime42.png": [9, 54, 116, 73],
-        "shime43.png": [9, 55, 109, 71],
-        "shime44.png": [9, 54, 116, 73],
-        "shime45.png": [10, 54, 106, 74],
-        "shime46.png": [15, 36, 110, 91]
     })
 
     function animFrame(anim, index) {
@@ -379,41 +316,19 @@ Item {
     MouseArea {
         id: grabArea
 
-        // Hitbox exactly matches the opaque area of the displayed frame
-        // (mirror-adjusted). While dragging it expands to the full canvas so
-        // mid-drag frame changes cannot shift the pointer math.
-        x: root.boxX
-        y: root.boxY
-        width: root.boxW
-        height: root.boxH
+        // The grab area is the shimeji's full image (the whole 128px canvas)
+        anchors.fill: parent
         hoverEnabled: false
-        propagateComposedEvents: true
         cursorShape: dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
         acceptedButtons: Qt.LeftButton
 
         onPressed: mouse => {
-            // When the alpha mask matches the displayed frame, ignore clicks
-            // on transparent pixels; if it is stale/missing, fail open so the
-            // grab never becomes unavailable
-            if (root.maskReady && maskCanvas.context) {
-                const cx = Math.max(0, Math.min(127, Math.round(mouse.x)));
-                const cy = Math.max(0, Math.min(127, Math.round(mouse.y)));
-                const sx = root.facingRight ? 127 - cx : cx;
-                const data = maskCanvas.context.getImageData(sx, cy, 1, 1).data;
-                if (data[3] < 20) {
-                    mouse.accepted = false;
-                    return;
-                }
-            }
-
             dragging = true;
             climbing = false;
             ceilingWalk = false;
             walkTarget = -1;
             landTimer.stop();
-            const px = mouse.x + grabArea.x;
-            const py = mouse.y + grabArea.y;
-            dragOffset = Qt.point(px - root.x, py - root.y);
+            dragOffset = Qt.point(mouse.x, mouse.y);
             lastX = root.x;
             lastY = root.y;
             dragVx = 0;
@@ -426,10 +341,8 @@ Item {
             if (!dragging)
                 return;
 
-            const px = mouse.x + grabArea.x;
-            const py = mouse.y + grabArea.y;
-            const newX = Math.max(minX, Math.min(maxX, px - dragOffset.x));
-            const newY = Math.max(0, Math.min(maxY, py - dragOffset.y));
+            const newX = Math.max(minX, Math.min(maxX, root.x + mouse.x - dragOffset.x));
+            const newY = Math.max(0, Math.min(maxY, root.y + mouse.y - dragOffset.y));
             dragVx = newX - lastX;
             dragVy = newY - lastY;
             lastX = newX;
@@ -448,46 +361,6 @@ Item {
         }
 
         onReleased: dragging = false
-    }
-
-    // Offscreen copy of the current frame for alpha hit-testing. Kept in the
-    // scene (declared under spriteImage) because an invisible Canvas is not
-    // guaranteed to paint; the sprite image fully covers it.
-    Canvas {
-        id: maskCanvas
-
-        anchors.fill: parent
-        renderStrategy: Canvas.Immediate
-        opacity: 0
-        onPaint: {
-            const ctx = getContext("2d");
-            ctx.clearRect(0, 0, width, height);
-            if (maskSource.status === Image.Ready) {
-                ctx.drawImage(maskSource, 0, 0, 128, 128);
-                maskSource.paintedFile = maskSource.source;
-            }
-        }
-    }
-
-    Image {
-        id: maskSource
-
-        property string paintedFile: ""
-
-        opacity: 0
-        source: root.imgPath + root.frameFile
-        sourceSize.width: 128
-        sourceSize.height: 128
-        cache: true
-        onStatusChanged: {
-            if (status === Image.Ready)
-                maskCanvas.requestPaint();
-        }
-        // Cached frames never re-fire onStatusChanged — repaint on every swap
-        onSourceChanged: {
-            if (status === Image.Ready)
-                maskCanvas.requestPaint();
-        }
     }
 
     Image {

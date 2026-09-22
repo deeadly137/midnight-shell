@@ -60,7 +60,10 @@ StyledWindow {
     visible: shouldBeVisible
 
     name: "shimeji"
-    WlrLayershell.layer: WlrLayer.Bottom
+    // Top layer: the shimeji walks above windows (like the real Shimeji pet).
+    // Bottom-layer input routing made grabbing unreliable (clicks competed
+    // with regular windows and the fullscreen wallpaper surface).
+    WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     surfaceFormat.opaque: false

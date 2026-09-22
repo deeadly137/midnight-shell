@@ -214,8 +214,8 @@ Item {
 
         const timeScale = dt / 0.030;
 
-        // Climbing the wall (12-14): pinned to the edge, ascending
-        if (climbing) {
+        // Ascending the wall (12-14): pinned to the edge, constant climb speed
+        if (climbing && walkTarget < 0) {
             root.y += vy * timeScale;
             root.x = facingRight ? maxX : minX;
 
@@ -242,8 +242,8 @@ Item {
                 return;
             }
 
-            const dx = walkTarget - root.x;
-            if (Math.abs(dx) < 6) {
+            const dxc = walkTarget - root.x;
+            if (Math.abs(dxc) < 6) {
                 walkTarget = -1;
                 ceilingWalk = false;
                 onGround = false;
@@ -254,7 +254,7 @@ Item {
                 return;
             }
 
-            vx = Math.sign(dx) * 1.5;
+            vx = Math.sign(dxc) * 1.5;
             facingRight = vx > 0;
             root.x = Math.max(minX, Math.min(maxX, root.x + vx * timeScale));
             return;
@@ -275,7 +275,16 @@ Item {
             if (Math.abs(dx) < 8) {
                 walkTarget = -1;
                 vx = 0;
-                pickIdle();
+
+                if (climbing) {
+                    // Reached the edge: start ascending (12-14)
+                    currentAnim = "climb";
+                    frameIndex = 0;
+                    vy = -2.5;
+                    onGround = false;
+                } else {
+                    pickIdle();
+                }
             } else {
                 vx = Math.sign(dx) * 2.5;
                 facingRight = vx > 0;

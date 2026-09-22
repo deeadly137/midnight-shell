@@ -318,7 +318,7 @@ GridLayout {
             Repeater {
                 model: ScriptModel {
                     values: {
-                        const windows = Hypr.toplevelsForWs(root.ws, Config.bar.workspaces.ignoredTags);
+                        const windows = Hypr.toplevelsForWs(root.ws);
                         const maxIcons = root.Config.bar.workspaces.maxWindowIcons;
                         return maxIcons > 0 ? windows.slice(0, maxIcons) : windows;
                     }

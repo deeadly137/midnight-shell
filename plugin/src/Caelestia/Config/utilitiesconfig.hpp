@@ -14,28 +14,40 @@ class UtilitiesToasts : public settings::ObjectNode {
     CONFIG_NODE(UtilitiesToasts, settings::ObjectNode)
 
     CONFIG_PROPERTY(QString, fullscreen, u"off"_s)
-    CONFIG_GLOBAL_PROPERTY(bool, configLoaded, true)
-    CONFIG_GLOBAL_PROPERTY(bool, chargingChanged, true)
-    CONFIG_GLOBAL_PROPERTY(bool, gameModeChanged, true)
-    CONFIG_GLOBAL_PROPERTY(bool, dndChanged, true)
-    CONFIG_GLOBAL_PROPERTY(bool, audioOutputChanged, true)
-    CONFIG_GLOBAL_PROPERTY(bool, audioInputChanged, true)
-    CONFIG_GLOBAL_PROPERTY(bool, capsLockChanged, true)
-    CONFIG_GLOBAL_PROPERTY(bool, numLockChanged, true)
-    CONFIG_GLOBAL_PROPERTY(bool, kbLayoutChanged, true)
-    CONFIG_GLOBAL_PROPERTY(bool, kbLimit, true)
-    CONFIG_GLOBAL_PROPERTY(bool, vpnChanged, true)
-    CONFIG_GLOBAL_PROPERTY(bool, nowPlaying, false)
+    CONFIG_PROPERTY(bool, configLoaded, true)
+    CONFIG_PROPERTY(bool, chargingChanged, true)
+    CONFIG_PROPERTY(bool, gameModeChanged, true)
+    CONFIG_PROPERTY(bool, dndChanged, true)
+    CONFIG_PROPERTY(bool, audioOutputChanged, true)
+    CONFIG_PROPERTY(bool, audioInputChanged, true)
+    CONFIG_PROPERTY(bool, capsLockChanged, true)
+    CONFIG_PROPERTY(bool, numLockChanged, true)
+    CONFIG_PROPERTY(bool, kbLayoutChanged, true)
+    CONFIG_PROPERTY(bool, kbLimit, true)
+    CONFIG_PROPERTY(bool, vpnChanged, true)
+    CONFIG_PROPERTY(bool, nowPlaying, false)
     CONFIG_GLOBAL_PROPERTY(bool, transparency, false)
     CONFIG_GLOBAL_PROPERTY(qreal, transparencyBase, 0.85)
 };
 
+class UtilitiesVpnProvider : public settings::ObjectNode {
+    CONFIG_NODE(UtilitiesVpnProvider, settings::ObjectNode)
+
+    CONFIG_PROPERTY(QString, id, {})
+    CONFIG_PROPERTY(QString, name, {})
+    CONFIG_PROPERTY(QString, displayName, {})
+    CONFIG_PROPERTY(QString, interface, {})
+    CONFIG_PROPERTY(QStringList, connectCmd, {})
+    CONFIG_PROPERTY(QStringList, disconnectCmd, {})
+};
+CONFIG_LIST_TYPE(UtilitiesVpnProvider, UtilitiesVpnProviderList)
+
 class UtilitiesVpn : public settings::ObjectNode {
     CONFIG_NODE(UtilitiesVpn, settings::ObjectNode)
 
-    CONFIG_GLOBAL_PROPERTY(bool, enabled, false)
-    CONFIG_GLOBAL_PROPERTY(QVariantList, provider, {})
-    CONFIG_GLOBAL_PROPERTY(QString, selectedProvider, QString())
+    CONFIG_PROPERTY(bool, enabled, false)
+    CONFIG_LIST(UtilitiesVpnProviderList, provider, {})
+    CONFIG_PROPERTY(QString, selectedProvider, {})
 };
 
 class UtilitiesCards : public settings::ObjectNode {

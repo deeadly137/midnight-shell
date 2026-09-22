@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Caelestia.Config
+import Caelestia.I18n
 import qs.components
 import qs.services
 
@@ -107,7 +108,7 @@ StyledRect {
         Loader {
             Layout.alignment: Qt.AlignVCenter
             asynchronous: true
-            active: GlobalConfig.services.useTwelveHourClock
+            active: Units.twelveHourClock
             visible: active
 
             sourceComponent: StyledText {
@@ -226,7 +227,7 @@ StyledRect {
             Layout.topMargin: -parent.spacing - 4
             Layout.alignment: Qt.AlignHCenter
             asynchronous: true
-            active: GlobalConfig.services.useTwelveHourClock
+            active: Units.twelveHourClock
             visible: active
 
             sourceComponent: StyledText {

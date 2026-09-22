@@ -26,7 +26,7 @@ Singleton {
     function getIdentity(player: MprisPlayer): string {
         if (!player)
             return "";
-        const alias = GlobalConfig.services.playerAliases.find(a => a.from === player.identity);
+        const alias = GlobalConfig.services.playerAliases.values.find(a => a.from === player.identity);
         return alias?.to ?? player.identity;
     }
 

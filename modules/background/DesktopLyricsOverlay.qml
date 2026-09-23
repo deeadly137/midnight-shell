@@ -17,6 +17,14 @@ Variants {
 
         required property ShellScreen modelData
 
+        // Don't keep two fullscreen surfaces mapped per screen when overlay
+        // lyrics are off or disabled — same condition as the content loader
+        readonly property bool lyricsActive: Config.background.desktopLyrics.enabled
+            && Config.background.desktopLyrics.overlay
+            && !(GameMode.enabled && GlobalConfig.utilities.gameMode.disableDesktopLyrics)
+
+        visible: lyricsActive
+
         screen: modelData
         name: "desktopLyricsOverlay"
         WlrLayershell.exclusionMode: ExclusionMode.Ignore

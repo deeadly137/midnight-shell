@@ -111,6 +111,7 @@ class GeneralConfig : public settings::ObjectNode {
     CONFIG_GLOBAL_SUBOBJECT(GeneralIdle, idle)
     CONFIG_GLOBAL_SUBOBJECT(GeneralBattery, battery)
     CONFIG_GLOBAL_PROPERTY(bool, developerMode, false)
+    CONFIG_GLOBAL_PROPERTY(bool, restartOnDisplayChange, true)
 };
 
 } // namespace caelestia::config

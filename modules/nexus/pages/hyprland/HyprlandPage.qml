@@ -32,11 +32,25 @@ PageBase {
         }
 
         NavRow {
-            last: true
             icon: "settings_suggest"
             text: qsTr("User configuration")
             subtext: qsTr("Advanced configuration options")
             onClicked: root.nState.openSubPage(3)
+        }
+
+        SectionHeader {
+            text: qsTr("Behavior")
+        }
+
+        ToggleRow {
+            last: true
+            text: qsTr("Restart on display change")
+            subtext: qsTr("Restart the shell when a new display is connected (fixes surfaces not appearing on the new screen)")
+            checked: GlobalConfig.general.restartOnDisplayChange
+            onToggled: {
+                GlobalConfig.general.restartOnDisplayChange = checked;
+                GlobalConfig.save();
+            }
         }
     }
 }

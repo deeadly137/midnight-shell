@@ -18,7 +18,7 @@ Item {
     readonly property real minX: leftOffset
     readonly property real maxX: screenSize.width - 128 - rightOffset
     readonly property real maxY: screenSize.height - 128 - floorOffset
-    readonly property real ceilingY: ceilingOffset + borderThickness + 8
+    readonly property real ceilingY: ceilingOffset + borderThickness
 
     property real vx: 0
     property real vy: 0
@@ -29,6 +29,7 @@ Item {
     property int dragPose: 0
     property bool climbing: false
     property bool ceilingWalk: false
+    property int climbDir: 1
     property point dragOffset
     property real lastX: 0
     property real lastY: 0
@@ -154,13 +155,18 @@ Item {
         frameIndex = 0;
     }
 
-    // Walk to the nearest screen edge, climb the wall, then walk the ceiling
+    // Walk to the nearest reserved wall, climb it, then walk the ceiling.
+    // The target is the wall itself (minX/maxX already account for side bars)
+    // and climbDir pins the ascend phase to that exact edge — a fixed-offset
+    // target can be unreachable once a bar reserves the edge (the pet would
+    // walk at the wall forever without climbing).
     function startClimb() {
         const nearLeft = root.x + 64 < screenSize.width / 2;
-        walkTarget = nearLeft ? 10 : maxX - 10;
-        facingRight = !nearLeft;
+        climbDir = nearLeft ? -1 : 1;
+        facingRight = climbDir > 0;
         climbing = true;
         ceilingWalk = false;
+        walkTarget = climbDir < 0 ? minX : maxX;
         currentAnim = "walk";
         frameIndex = 0;
     }
@@ -182,13 +188,13 @@ Item {
         // Ascending the wall (12-14): pinned to the edge, constant climb speed
         if (climbing && walkTarget < 0) {
             root.y += vy * timeScale;
-            root.x = facingRight ? maxX : minX;
+            root.x = climbDir < 0 ? minX : maxX;
 
             if (root.y <= ceilingY) {
                 root.y = ceilingY;
                 climbing = false;
                 ceilingWalk = true;
-                walkTarget = minX + 60 + Math.random() * Math.max(1, maxX - minX - 120);
+                walkTarget = Math.max(minX, Math.min(maxX, minX + 60 + Math.random() * Math.max(1, maxX - minX - 120)));
                 currentAnim = "ceiling";
                 frameIndex = 0;
             }
@@ -237,7 +243,10 @@ Item {
 
         if (walkTarget >= 0) {
             const dx = walkTarget - root.x;
-            if (Math.abs(dx) < 8) {
+            // Reaching the reserved wall also counts as arrival (the clamp can
+            // leave the pet a tick short of the exact target)
+            const atWall = climbing && ((climbDir < 0 && root.x <= minX + 2) || (climbDir > 0 && root.x >= maxX - 2));
+            if (Math.abs(dx) < 8 || atWall) {
                 walkTarget = -1;
                 vx = 0;
 

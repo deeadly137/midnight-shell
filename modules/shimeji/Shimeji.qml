@@ -34,7 +34,15 @@ StyledWindow {
         return bar;
     })()
 
-    readonly property real floorOffset: Config.bar.position === "bottom" ? (barWrapper?.exclusiveZone ?? (Tokens.sizes.bar.innerWidth + Math.max(Tokens.padding.small, Config.border.thickness))) : 0
+    readonly property real barExclusiveZone: barWrapper?.exclusiveZone ?? (Tokens.sizes.bar.innerWidth + Math.max(Tokens.padding.small, Config.border.thickness))
+
+    // Reserve the bar's exclusive zone on whichever edge it occupies — computed
+    // reactively from Config.bar.position + the bar's live exclusiveZone, so the
+    // sprites re-resolve geometry when the config or bar layout changes
+    readonly property real floorOffset: Config.bar.position === "bottom" ? barExclusiveZone : 0
+    readonly property real ceilingOffset: Config.bar.position === "top" ? barExclusiveZone : 0
+    readonly property real leftOffset: Config.bar.position === "left" ? barExclusiveZone : 0
+    readonly property real rightOffset: Config.bar.position === "right" ? barExclusiveZone : 0
 
     function getImgPath(): string {
         if (!modelData)
@@ -109,6 +117,9 @@ StyledWindow {
                 screenSize: Qt.size(shimejiScreen.width, shimejiScreen.height)
                 borderThickness: root.borderThickness
                 floorOffset: root.floorOffset
+                ceilingOffset: root.ceilingOffset
+                leftOffset: root.leftOffset
+                rightOffset: root.rightOffset
                 imgPath: root.getImgPath()
             }
         }

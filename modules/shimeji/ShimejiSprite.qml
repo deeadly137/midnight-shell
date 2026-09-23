@@ -10,11 +10,15 @@ Item {
     required property var borderThickness
     required property string imgPath
     property real floorOffset: 0
+    property real ceilingOffset: 0
+    property real leftOffset: 0
+    property real rightOffset: 0
 
     readonly property real floorY: screenSize.height - 128 - borderThickness - floorOffset
-    readonly property real minX: 0
-    readonly property real maxX: screenSize.width - 128
+    readonly property real minX: leftOffset
+    readonly property real maxX: screenSize.width - 128 - rightOffset
     readonly property real maxY: screenSize.height - 128 - floorOffset
+    readonly property real ceilingY: ceilingOffset + borderThickness + 8
 
     property real vx: 0
     property real vy: 0
@@ -138,7 +142,13 @@ Item {
 
     function walkRandom() {
         const margin = 100;
-        walkTarget = margin + Math.random() * (screenSize.width - 128 - margin * 2);
+        const lo = Math.max(minX + margin, minX);
+        const hi = Math.min(maxX - margin, maxX);
+        if (hi <= lo) {
+            walkTarget = (minX + maxX) / 2;
+        } else {
+            walkTarget = lo + Math.random() * (hi - lo);
+        }
         currentAnim = "walk";
         facingRight = walkTarget > root.x;
         frameIndex = 0;
@@ -174,11 +184,11 @@ Item {
             root.y += vy * timeScale;
             root.x = facingRight ? maxX : minX;
 
-            if (root.y <= 8) {
-                root.y = 8;
+            if (root.y <= ceilingY) {
+                root.y = ceilingY;
                 climbing = false;
                 ceilingWalk = true;
-                walkTarget = 60 + Math.random() * (screenSize.width - 240);
+                walkTarget = minX + 60 + Math.random() * Math.max(1, maxX - minX - 120);
                 currentAnim = "ceiling";
                 frameIndex = 0;
             }
@@ -278,8 +288,8 @@ Item {
                         walkRandom();
                 }
             }
-        } else if (root.y < 0) {
-            root.y = 0;
+        } else if (root.y < ceilingY) {
+            root.y = ceilingY;
             vy = Math.abs(vy) * 0.5;
         }
     }
@@ -294,7 +304,7 @@ Item {
             maskHost.registerSpriteMask(inputMask);
 
         const margin = 50;
-        x = margin + Math.random() * (screenSize.width - 128 - margin * 2);
+        x = Math.max(minX + margin, Math.min(maxX - margin, minX + Math.random() * Math.max(1, maxX - minX)));
         y = floorY;
         onGround = true;
         vx = 0;
@@ -358,7 +368,7 @@ Item {
                 return;
 
             const newX = Math.max(minX, Math.min(maxX, root.x + mouse.x - dragOffset.x));
-            const newY = Math.max(0, Math.min(maxY, root.y + mouse.y - dragOffset.y));
+            const newY = Math.max(ceilingY, Math.min(maxY, root.y + mouse.y - dragOffset.y));
             dragVx = newX - lastX;
             dragVy = newY - lastY;
             lastX = newX;

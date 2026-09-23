@@ -64,7 +64,6 @@ ShellRoot {
         });
     }
     BatteryMonitor {}
-    DisplayMonitor {}
     IdleMonitors {
         lock: lock
     }

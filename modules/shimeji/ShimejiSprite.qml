@@ -1,7 +1,5 @@
 import QtQuick
 import Quickshell
-import Caelestia.Config
-import qs.services
 
 Item {
     id: root
@@ -17,7 +15,6 @@ Item {
     readonly property real floorY: screenSize.height - 128 - borderThickness - floorOffset
     readonly property real minX: leftOffset
     readonly property real maxX: screenSize.width - 128 - rightOffset
-    readonly property real maxY: screenSize.height - 128 - floorOffset
     readonly property real ceilingY: ceilingOffset + borderThickness
     // Standard-layout ceiling frames (23-25) draw the pet ~47px down the
     // canvas; lift the canvas so its visible body touches the ceiling line
@@ -393,7 +390,7 @@ Item {
                 return;
 
             const newX = Math.max(minX, Math.min(maxX, root.x + mouse.x - dragOffset.x));
-            const newY = Math.max(ceilingY, Math.min(maxY, root.y + mouse.y - dragOffset.y));
+            const newY = Math.max(ceilingY, Math.min(floorY, root.y + mouse.y - dragOffset.y));
             dragVx = newX - lastX;
             dragVy = newY - lastY;
             lastX = newX;

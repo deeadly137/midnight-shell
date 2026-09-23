@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Caelestia.Config
 import qs.services
 

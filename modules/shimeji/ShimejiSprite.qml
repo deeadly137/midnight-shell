@@ -19,6 +19,9 @@ Item {
     readonly property real maxX: screenSize.width - 128 - rightOffset
     readonly property real maxY: screenSize.height - 128 - floorOffset
     readonly property real ceilingY: ceilingOffset + borderThickness
+    // Standard-layout ceiling frames (23-25) draw the pet ~47px down the
+    // canvas; lift the canvas so its visible body touches the ceiling line
+    readonly property real ceilingLift: 47
 
     property real vx: 0
     property real vy: 0
@@ -191,7 +194,9 @@ Item {
             root.x = climbDir < 0 ? minX : maxX;
 
             if (root.y <= ceilingY) {
-                root.y = ceilingY;
+                // Lift onto the ceiling so the visible body (not the canvas
+                // edge) meets the reserved line
+                root.y = ceilingY - ceilingLift;
                 climbing = false;
                 ceilingWalk = true;
                 walkTarget = Math.max(minX, Math.min(maxX, minX + 60 + Math.random() * Math.max(1, maxX - minX - 120)));
@@ -251,11 +256,14 @@ Item {
                 vx = 0;
 
                 if (climbing) {
-                    // Reached the edge: start ascending (12-14)
+                    // Reached the edge: start ascending (12-14). The climb art
+                    // lives on the right half of the canvas, so hug the wall by
+                    // mirroring on the LEFT edge and not mirroring on the right
                     currentAnim = "climb";
                     frameIndex = 0;
                     vy = -2.5;
                     onGround = false;
+                    facingRight = climbDir < 0;
                 } else {
                     pickIdle();
                 }
@@ -297,7 +305,9 @@ Item {
                         walkRandom();
                 }
             }
-        } else if (root.y < ceilingY) {
+        } else if (vy < 0 && root.y < ceilingY) {
+            // Only rising pets bounce off the ceiling; a pet dropping off it
+            // (canvas lifted by ceilingLift) must fall through this line
             root.y = ceilingY;
             vy = Math.abs(vy) * 0.5;
         }

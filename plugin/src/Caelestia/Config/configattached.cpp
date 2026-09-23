@@ -57,9 +57,9 @@ void Config::attachedParentChange(
     const Type* Config::name() const {                                                                                 \
         if (m_config)                                                                                                  \
             return m_config->name();                                                                                   \
-        /* Suppress warnings before component is complete if attached to a QQuickItem. */                              \
+        /* Suppress warnings before component completion (screen inheritance is only resolvable then). */                              \
         /* Raw QObjects are unable to inherit the screen (only QQuickItems can). */                                    \
-        if ((m_complete || !qobject_cast<QQuickItem*>(parent())) && parent())                                          \
+        if (m_complete && parent())                                          \
             qCWarning(lcConfig, "Config.%s accessed without a screen set on %s", #name,                                \
                 parent()->metaObject()->className());                                                                  \
         return ConfigSingleton::instance()->name();                                                                    \

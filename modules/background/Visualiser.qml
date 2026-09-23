@@ -22,6 +22,8 @@ Item {
     readonly property real visualiserSpacing: Tokens.spacing.small * Config.background.visualiser.spacing
     readonly property real fallbackMargin: Tokens.padding.large + Tokens.spacing.small
 
+    readonly property bool rendererGpu: Config.background.visualiser.renderer !== "cpu"
+
     opacity: shouldBeActive ? 1 : 0
 
     Loader {
@@ -152,7 +154,7 @@ Item {
                     running: root.opacity > 0 && !bars.settled
                     onTriggered: {
                         bars.advance(frameTime);
-                        if (Config.background.visualiser.renderer !== "cpu") {
+                        if (!root.rendererGpu) {
                             dataCanvas.requestPaint();
                         }
                     }

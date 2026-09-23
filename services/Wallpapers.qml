@@ -383,6 +383,7 @@ Searcher {
         id: weStore
 
         path: `${Paths.state}/wallpaper/wallpaper-engine.json`
+        printErrors: false
         watchChanges: true
         onFileChanged: reload()
 

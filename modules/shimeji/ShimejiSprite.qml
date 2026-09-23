@@ -7,14 +7,20 @@ Item {
     required property var screenSize
     required property var borderThickness
     required property string imgPath
+    // Size multiplier from config (1.0 = native 128px pack), clamped so the
+    // geometry can never degenerate; artScale is the effective multiplier
+    property real sizeScale: 1
     property real floorOffset: 0
     property real ceilingOffset: 0
     property real leftOffset: 0
     property real rightOffset: 0
 
-    readonly property real floorY: screenSize.height - 128 - borderThickness - floorOffset
+    readonly property real artScale: Math.max(0.25, Math.min(4, sizeScale))
+    readonly property real size: 128 * artScale
+
+    readonly property real floorY: screenSize.height - size - borderThickness - floorOffset
     readonly property real minX: leftOffset
-    readonly property real maxX: screenSize.width - 128 - rightOffset
+    readonly property real maxX: screenSize.width - size - rightOffset
     readonly property real ceilingY: ceilingOffset + borderThickness
     // Standard-layout ceiling frames (23-25) draw the pet ~47px down the
     // canvas; lift the canvas so its visible body touches the ceiling line
@@ -194,12 +200,12 @@ Item {
         // (wall-facing) pet's body hugs the wall itself
         if (climbing && walkTarget < 0) {
             root.y += vy * timeScale;
-            root.x = climbDir < 0 ? minX - climbArtOffset : maxX + climbArtOffset;
+            root.x = climbDir < 0 ? minX - climbArtOffset * artScale : maxX + climbArtOffset * artScale;
 
             if (root.y <= ceilingY) {
                 // Lift onto the ceiling so the visible body (not the canvas
                 // edge) meets the reserved line
-                root.y = ceilingY - ceilingLift;
+                root.y = ceilingY - ceilingLift * artScale;
                 climbing = false;
                 ceilingWalk = true;
                 walkTarget = Math.max(minX, Math.min(maxX, minX + 60 + Math.random() * Math.max(1, maxX - minX - 120)));
@@ -318,8 +324,8 @@ Item {
 
     x: 0
     y: floorY
-    width: 128
-    height: 128
+    width: root.size
+    height: root.size
 
     Component.onCompleted: {
         if (maskHost)
@@ -364,7 +370,7 @@ Item {
     MouseArea {
         id: grabArea
 
-        // The grab area is the shimeji's full image (the whole 128px canvas)
+        // The grab area is the shimeji's full image (the whole scaled canvas)
         anchors.fill: parent
         hoverEnabled: false
         cursorShape: dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor

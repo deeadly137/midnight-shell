@@ -28,6 +28,8 @@ StyledWindow {
 
     readonly property real borderThickness: modelData ? contentItem.Config.border.thickness : 0
 
+    readonly property real shimejiScale: contentItem.Config.shimeji.scale
+
     readonly property var barWrapper: root.screen ? Visibilities.bars.get(root.screen.name) : undefined
 
     readonly property real barExclusiveZone: barWrapper?.exclusiveZone ?? (contentItem.Tokens.sizes.bar.innerWidth + Math.max(contentItem.Tokens.padding.small, contentItem.Config.border.thickness))
@@ -108,6 +110,7 @@ StyledWindow {
                 maskHost: root
                 screenSize: Qt.size(shimejiScreen.width, shimejiScreen.height)
                 borderThickness: root.borderThickness
+                sizeScale: root.shimejiScale
                 floorOffset: root.floorOffset
                 ceilingOffset: root.ceilingOffset
                 leftOffset: root.leftOffset

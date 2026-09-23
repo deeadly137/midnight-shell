@@ -22,6 +22,10 @@ Item {
     // Standard-layout ceiling frames (23-25) draw the pet ~47px down the
     // canvas; lift the canvas so its visible body touches the ceiling line
     readonly property real ceilingLift: 47
+    // Climb frames (12-14) draw the pet ~55px into the canvas (on the wall
+    // side); the canvas is shifted by this so the body — not the canvas edge —
+    // touches the wall while the pet keeps facing it
+    readonly property real climbArtOffset: 55
 
     property real vx: 0
     property real vy: 0
@@ -188,10 +192,12 @@ Item {
 
         const timeScale = dt / 0.030;
 
-        // Ascending the wall (12-14): pinned to the edge, constant climb speed
+        // Ascending the wall (12-14): pinned near the edge, constant climb
+        // speed. The canvas is shifted by the art offset so the mirrored
+        // (wall-facing) pet's body hugs the wall itself
         if (climbing && walkTarget < 0) {
             root.y += vy * timeScale;
-            root.x = climbDir < 0 ? minX : maxX;
+            root.x = climbDir < 0 ? minX - climbArtOffset : maxX + climbArtOffset;
 
             if (root.y <= ceilingY) {
                 // Lift onto the ceiling so the visible body (not the canvas
@@ -256,14 +262,14 @@ Item {
                 vx = 0;
 
                 if (climbing) {
-                    // Reached the edge: start ascending (12-14). The climb art
-                    // lives on the right half of the canvas, so hug the wall by
-                    // mirroring on the LEFT edge and not mirroring on the right
+                    // Reached the edge: start ascending (12-14). The pet faces
+                    // the wall it climbs; the canvas shift in the ascend phase
+                    // keeps its body flush with the wall
                     currentAnim = "climb";
                     frameIndex = 0;
                     vy = -2.5;
                     onGround = false;
-                    facingRight = climbDir < 0;
+                    facingRight = climbDir > 0;
                 } else {
                     pickIdle();
                 }

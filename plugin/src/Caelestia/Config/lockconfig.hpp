@@ -19,7 +19,9 @@ class LockConfig : public settings::ObjectNode {
     CONFIG_GLOBAL_PROPERTY(bool, triggerHowdyOnWake, true)
     CONFIG_PROPERTY(bool, hideNotifs, false)
     CONFIG_GLOBAL_PROPERTY(bool, lockOnStartup, false)
-    CONFIG_GLOBAL_PROPERTY(bool, enableSessionControls, false)
+    // Fork default: session buttons were always available on hover before
+    // this option existed upstream
+    CONFIG_GLOBAL_PROPERTY(bool, enableSessionControls, true)
 };
 
 } // namespace caelestia::config

@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import Quickshell
 import M3Shapes
 import Caelestia.Config
+import Caelestia.I18n
 import Caelestia.Services
 import qs.components
 import qs.components.controls
